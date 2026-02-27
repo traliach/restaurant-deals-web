@@ -25,10 +25,10 @@ type SortOption = "newest" | "value";
 // Delays API calls until the user stops typing for 300ms.
 function useDebounce(value: string, ms = 300) {
   const [debounced, setDebounced] = useState(value);
-  const timer = useRef<ReturnType<typeof setTimeout>>();
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     timer.current = setTimeout(() => setDebounced(value), ms);
-    return () => clearTimeout(timer.current);
+    return () => { if (timer.current) clearTimeout(timer.current); };
   }, [value, ms]);
   return debounced;
 }
