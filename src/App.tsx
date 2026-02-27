@@ -6,6 +6,7 @@ import { FavoritesPage } from './pages/FavoritesPage'
 import { PortalPage } from './pages/PortalPage'
 import { AdminPage } from './pages/AdminPage'
 import { LoginPage } from './pages/LoginPage'
+import { RequireAuth } from './components/RequireAuth'
 
 function App() {
   const navigate = useNavigate()
@@ -43,9 +44,30 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/deals" element={<DealsPage />} />
           <Route path="/deals/:id" element={<DealDetailsPage />} />
-          <Route path="/favorites" element={<FavoritesPage />} />
-          <Route path="/portal" element={<PortalPage />} />
-          <Route path="/admin" element={<AdminPage />} />
+          <Route
+            path="/favorites"
+            element={
+              <RequireAuth>
+                <FavoritesPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/portal"
+            element={
+              <RequireAuth>
+                <PortalPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <RequireAuth>
+                <AdminPage />
+              </RequireAuth>
+            }
+          />
           <Route path="/login" element={<LoginPage />} />
         </Routes>
       </div>
