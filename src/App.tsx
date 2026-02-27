@@ -1,4 +1,4 @@
-import { NavLink, Route, Routes } from 'react-router-dom'
+import { NavLink, Route, Routes, useNavigate } from 'react-router-dom'
 import { HomePage } from './pages/HomePage'
 import { DealsPage } from './pages/DealsPage'
 import { DealDetailsPage } from './pages/DealDetailsPage'
@@ -8,6 +8,13 @@ import { AdminPage } from './pages/AdminPage'
 import { LoginPage } from './pages/LoginPage'
 
 function App() {
+  const navigate = useNavigate()
+
+  function logout() {
+    localStorage.removeItem('token')
+    navigate('/login')
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <header className="border-b bg-white">
@@ -22,6 +29,12 @@ function App() {
           <NavLink to="/login" className="ml-auto">
             Login
           </NavLink>
+          <button
+            onClick={logout}
+            className="rounded border px-3 py-1 text-xs text-slate-700 hover:bg-slate-100"
+          >
+            Logout
+          </button>
         </nav>
       </header>
 
