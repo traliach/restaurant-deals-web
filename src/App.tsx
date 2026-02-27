@@ -66,11 +66,7 @@ function App() {
           <Route path="/deals/:id" element={<DealDetailsPage />} />
           <Route
             path="/favorites"
-            element={
-              <RequireAuth>
-                <FavoritesPage />
-              </RequireAuth>
-            }
+            element={<FavoritesPage />}
           />
           <Route
             path="/portal"
