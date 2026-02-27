@@ -9,11 +9,14 @@ type SubmittedDeal = {
   createdAt?: string;
 };
 
+type QueueFilter = "ALL" | "SUBMITTED";
+
 export function AdminPage() {
   const [items, setItems] = useState<SubmittedDeal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [queueFilter, setQueueFilter] = useState<QueueFilter>("ALL");
 
   useEffect(() => {
     async function loadQueue() {
@@ -54,13 +57,25 @@ export function AdminPage() {
   if (loading) return <p className="text-slate-600">Loading admin queue...</p>;
   if (error) return <p className="text-red-600">Error: {error}</p>;
   if (items.length === 0) return <p className="text-slate-600">No submitted deals.</p>;
+  const visibleItems = queueFilter === "ALL" ? items : items.filter((deal) => deal.status === queueFilter);
 
   return (
     <section>
       <h1 className="text-2xl font-semibold">Admin Queue</h1>
       {success ? <p className="mt-2 text-sm text-emerald-700">{success}</p> : null}
+      <div className="mt-3">
+        <label className="text-xs text-slate-600">Filter status:</label>
+        <select
+          value={queueFilter}
+          onChange={(e) => setQueueFilter(e.target.value as QueueFilter)}
+          className="ml-2 rounded border px-2 py-1 text-xs"
+        >
+          <option value="ALL">All</option>
+          <option value="SUBMITTED">SUBMITTED</option>
+        </select>
+      </div>
       <ul className="mt-4 space-y-3">
-        {items.map((deal) => (
+        {visibleItems.map((deal) => (
           <li key={deal._id} className="rounded border bg-white p-4">
             <p className="font-semibold">{deal.title}</p>
             <p className="text-sm text-slate-600">{deal.restaurantName}</p>
