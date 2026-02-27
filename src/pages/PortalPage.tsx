@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { apiGet } from "../lib/api";
+import { apiGet, apiPost } from "../lib/api";
 
 type OwnerDeal = {
   _id: string;
@@ -27,6 +27,17 @@ export function PortalPage() {
     loadOwnerDeals();
   }, []);
 
+  async function submitDeal(id: string) {
+    try {
+      await apiPost(`/api/owner/deals/${id}/submit`);
+      setItems((prev) =>
+        prev.map((deal) => (deal._id === id ? { ...deal, status: "SUBMITTED" } : deal))
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Submit failed");
+    }
+  }
+
   if (loading) return <p className="text-slate-600">Loading portal...</p>;
   if (error) return <p className="text-red-600">Error: {error}</p>;
   if (items.length === 0) return <p className="text-slate-600">No owner deals yet.</p>;
@@ -40,6 +51,14 @@ export function PortalPage() {
             <p className="font-semibold">{deal.title}</p>
             <p className="text-sm text-slate-600">{deal.restaurantName}</p>
             <p className="mt-1 text-xs text-slate-500">Status: {deal.status}</p>
+            {deal.status === "DRAFT" || deal.status === "REJECTED" ? (
+              <button
+                onClick={() => submitDeal(deal._id)}
+                className="mt-3 rounded bg-indigo-600 px-3 py-1 text-xs font-medium text-white hover:bg-indigo-500"
+              >
+                Submit
+              </button>
+            ) : null}
           </li>
         ))}
       </ul>
