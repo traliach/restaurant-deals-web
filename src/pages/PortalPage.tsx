@@ -24,6 +24,7 @@ export function PortalPage() {
   const [items, setItems] = useState<OwnerDeal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [restaurantName, setRestaurantName] = useState("Demo Grill");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -51,6 +52,7 @@ export function PortalPage() {
           deal._id === id ? { ...deal, status: "SUBMITTED", rejectionReason: "" } : deal
         )
       );
+      setSuccess("Deal submitted.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Submit failed");
     }
@@ -59,6 +61,7 @@ export function PortalPage() {
   async function createDraft(event: FormEvent) {
     event.preventDefault();
     setError("");
+    setSuccess("");
     try {
       const payload: CreateDealInput = {
         restaurantName,
@@ -73,6 +76,7 @@ export function PortalPage() {
       setTitle("");
       setDescription("");
       setValue(20);
+      setSuccess("Draft created.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Create failed");
     }
@@ -94,6 +98,7 @@ export function PortalPage() {
         description: nextDescription.trim(),
       });
       setItems((prev) => prev.map((deal) => (deal._id === id ? { ...deal, ...updated } : deal)));
+      setSuccess("Deal updated.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Edit failed");
     }
@@ -104,6 +109,7 @@ export function PortalPage() {
     try {
       await apiDelete(`/api/owner/deals/${id}`);
       setItems((prev) => prev.filter((deal) => deal._id !== id));
+      setSuccess("Draft deleted.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Delete failed");
     }
@@ -153,6 +159,7 @@ export function PortalPage() {
       </form>
 
       {error ? <p className="mt-3 text-red-600">Error: {error}</p> : null}
+      {success ? <p className="mt-3 text-emerald-700">{success}</p> : null}
       {items.length === 0 ? <p className="mt-3 text-slate-600">No owner deals yet.</p> : null}
 
       <ul className="mt-4 space-y-3">

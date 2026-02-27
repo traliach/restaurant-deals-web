@@ -12,6 +12,7 @@ export function AdminPage() {
   const [items, setItems] = useState<SubmittedDeal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   useEffect(() => {
     async function loadQueue() {
@@ -31,6 +32,7 @@ export function AdminPage() {
     try {
       await apiPost(`/api/admin/deals/${id}/approve`);
       setItems((prev) => prev.filter((d) => d._id !== id));
+      setSuccess("Deal approved.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Approve failed");
     }
@@ -42,6 +44,7 @@ export function AdminPage() {
     try {
       await apiPost(`/api/admin/deals/${id}/reject`, { reason: reason.trim() });
       setItems((prev) => prev.filter((d) => d._id !== id));
+      setSuccess("Deal rejected.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Reject failed");
     }
@@ -54,6 +57,7 @@ export function AdminPage() {
   return (
     <section>
       <h1 className="text-2xl font-semibold">Admin Queue</h1>
+      {success ? <p className="mt-2 text-sm text-emerald-700">{success}</p> : null}
       <ul className="mt-4 space-y-3">
         {items.map((deal) => (
           <li key={deal._id} className="rounded border bg-white p-4">
