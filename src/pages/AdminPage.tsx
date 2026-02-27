@@ -6,6 +6,7 @@ type SubmittedDeal = {
   title: string;
   restaurantName: string;
   status: "SUBMITTED";
+  createdAt?: string;
 };
 
 export function AdminPage() {
@@ -64,6 +65,11 @@ export function AdminPage() {
             <p className="font-semibold">{deal.title}</p>
             <p className="text-sm text-slate-600">{deal.restaurantName}</p>
             <p className="mt-1 text-xs text-slate-500">Status: {deal.status}</p>
+            {deal.createdAt ? (
+              <p className="mt-1 text-xs text-slate-500">
+                Created: {new Date(deal.createdAt).toLocaleDateString()}
+              </p>
+            ) : null}
             <div className="mt-3 flex gap-2">
               <button
                 onClick={() => approveDeal(deal._id)}

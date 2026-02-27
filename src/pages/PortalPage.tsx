@@ -9,6 +9,7 @@ type OwnerDeal = {
   status: "DRAFT" | "SUBMITTED" | "PUBLISHED" | "REJECTED";
   restaurantName: string;
   rejectionReason?: string;
+  createdAt?: string;
 };
 
 type CreateDealInput = {
@@ -188,6 +189,11 @@ export function PortalPage() {
             <p className="font-semibold">{deal.title}</p>
             <p className="text-sm text-slate-600">{deal.restaurantName}</p>
             <p className="mt-1 text-xs text-slate-500">Status: {deal.status}</p>
+            {deal.createdAt ? (
+              <p className="mt-1 text-xs text-slate-500">
+                Created: {new Date(deal.createdAt).toLocaleDateString()}
+              </p>
+            ) : null}
             {deal.status === "REJECTED" && deal.rejectionReason ? (
               <p className="mt-2 text-xs text-rose-700">Reason: {deal.rejectionReason}</p>
             ) : null}
