@@ -7,6 +7,7 @@ import { PortalPage } from './pages/PortalPage'
 import { AdminPage } from './pages/AdminPage'
 import { LoginPage } from './pages/LoginPage'
 import { RequireAuth } from './components/RequireAuth'
+import { RequireRole } from './components/RequireRole'
 
 function App() {
   const navigate = useNavigate()
@@ -56,7 +57,9 @@ function App() {
             path="/portal"
             element={
               <RequireAuth>
-                <PortalPage />
+                <RequireRole allowed={['owner', 'admin']}>
+                  <PortalPage />
+                </RequireRole>
               </RequireAuth>
             }
           />
@@ -64,7 +67,9 @@ function App() {
             path="/admin"
             element={
               <RequireAuth>
-                <AdminPage />
+                <RequireRole allowed={['admin']}>
+                  <AdminPage />
+                </RequireRole>
               </RequireAuth>
             }
           />
