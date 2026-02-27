@@ -7,6 +7,7 @@ import { FavoritesPage } from './pages/FavoritesPage'
 import { PortalPage } from './pages/PortalPage'
 import { AdminPage } from './pages/AdminPage'
 import { LoginPage } from './pages/LoginPage'
+import { RegisterPage } from './pages/RegisterPage'
 import { RequireAuth } from './components/RequireAuth'
 import { RequireRole } from './components/RequireRole'
 
@@ -31,9 +32,10 @@ function App() {
           {role === 'owner' || role === 'admin' ? <NavLink to="/portal">Portal</NavLink> : null}
           {role === 'admin' ? <NavLink to="/admin">Admin</NavLink> : null}
           {!role ? (
-            <NavLink to="/login" className="ml-auto">
-              Login
-            </NavLink>
+            <span className="ml-auto flex gap-3">
+              <NavLink to="/login">Login</NavLink>
+              <NavLink to="/register">Register</NavLink>
+            </span>
           ) : (
             <button
               onClick={handleLogout}
@@ -75,6 +77,7 @@ function App() {
             }
           />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
         </Routes>
       </div>
     </div>
