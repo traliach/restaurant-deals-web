@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import { apiPost } from "../lib/api";
 
 type LoginData = {
@@ -9,14 +10,16 @@ type LoginData = {
 
 export function LoginPage() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("owner1@test.com");
-  const [password, setPassword] = useState("Pass123!");
+  const { isLoggedIn, login } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    if (localStorage.getItem("token")) navigate("/deals");
-  }, [navigate]);
+  if (isLoggedIn) {
+    navigate("/deals");
+    return null;
+  }
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
@@ -24,7 +27,7 @@ export function LoginPage() {
     setError("");
     try {
       const data = await apiPost<LoginData>("/api/auth/login", { email, password });
-      localStorage.setItem("token", data.token);
+      login(data.token);
       navigate("/deals");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
