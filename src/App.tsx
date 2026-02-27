@@ -41,7 +41,7 @@ function App() {
             Restaurant Deals
           </NavLink>
           <NavLink to="/deals">Deals</NavLink>
-          {role ? <NavLink to="/favorites">Favorites</NavLink> : null}
+          <NavLink to="/favorites">Favorites</NavLink>
           {role === 'owner' || role === 'admin' ? <NavLink to="/portal">Portal</NavLink> : null}
           {role === 'admin' ? <NavLink to="/admin">Admin</NavLink> : null}
           {!role ? (

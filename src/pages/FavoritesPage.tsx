@@ -34,6 +34,18 @@ export function FavoritesPage() {
   }, []);
 
   if (loading) return <p className="text-slate-600">Loading favorites...</p>;
+
+  if (error === "unauthenticated") {
+    return (
+      <section>
+        <h1 className="text-2xl font-semibold">Favorites</h1>
+        <p className="mt-2 text-slate-600">
+          Please <Link to="/login" className="text-indigo-700 hover:underline">login</Link> to view favorites.
+        </p>
+      </section>
+    );
+  }
+
   if (error) return <p className="text-red-600">Error: {error}</p>;
   if (items.length === 0) return <p className="text-slate-600">No favorites yet.</p>;
 
