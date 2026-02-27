@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { apiPost } from "../lib/api";
@@ -14,6 +14,10 @@ export function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    if (localStorage.getItem("token")) navigate("/deals");
+  }, [navigate]);
+
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     setLoading(true);
@@ -21,7 +25,7 @@ export function LoginPage() {
     try {
       const data = await apiPost<LoginData>("/api/auth/login", { email, password });
       localStorage.setItem("token", data.token);
-      navigate("/favorites");
+      navigate("/deals");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
     } finally {
