@@ -1,4 +1,5 @@
 import { NavLink, Route, Routes, useNavigate } from 'react-router-dom'
+import { useAuth } from './context/AuthContext'
 import { HomePage } from './pages/HomePage'
 import { DealsPage } from './pages/DealsPage'
 import { DealDetailsPage } from './pages/DealDetailsPage'
@@ -9,27 +10,12 @@ import { LoginPage } from './pages/LoginPage'
 import { RequireAuth } from './components/RequireAuth'
 import { RequireRole } from './components/RequireRole'
 
-type Role = 'customer' | 'owner' | 'admin' | null
-
-function getRole(): Role {
-  const token = localStorage.getItem('token')
-  if (!token) return null
-  try {
-    const payload = token.split('.')[1]
-    if (!payload) return null
-    const json = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')))
-    return json?.role ?? null
-  } catch {
-    return null
-  }
-}
-
 function App() {
   const navigate = useNavigate()
-  const role = getRole()
+  const { role, logout } = useAuth()
 
-  function logout() {
-    localStorage.removeItem('token')
+  function handleLogout() {
+    logout()
     navigate('/login')
   }
 
@@ -50,7 +36,7 @@ function App() {
             </NavLink>
           ) : (
             <button
-              onClick={logout}
+              onClick={handleLogout}
               className="ml-auto rounded border px-3 py-1 text-xs text-slate-700 hover:bg-slate-100"
             >
               Logout
