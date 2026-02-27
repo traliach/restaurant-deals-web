@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import type { FormEvent } from "react";
 import { apiGet, apiPost } from "../lib/api";
 
 type OwnerDeal = {
@@ -8,10 +9,23 @@ type OwnerDeal = {
   restaurantName: string;
 };
 
+type CreateDealInput = {
+  restaurantName: string;
+  title: string;
+  description: string;
+  dealType: "Lunch";
+  discountType: "percent";
+  value: number;
+};
+
 export function PortalPage() {
   const [items, setItems] = useState<OwnerDeal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [restaurantName, setRestaurantName] = useState("Demo Grill");
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [value, setValue] = useState(20);
 
   useEffect(() => {
     async function loadOwnerDeals() {
@@ -38,13 +52,74 @@ export function PortalPage() {
     }
   }
 
+  async function createDraft(event: FormEvent) {
+    event.preventDefault();
+    setError("");
+    try {
+      const payload: CreateDealInput = {
+        restaurantName,
+        title,
+        description,
+        dealType: "Lunch",
+        discountType: "percent",
+        value: Number(value),
+      };
+      const created = await apiPost<OwnerDeal>("/api/owner/deals", payload);
+      setItems((prev) => [created, ...prev]);
+      setTitle("");
+      setDescription("");
+      setValue(20);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Create failed");
+    }
+  }
+
   if (loading) return <p className="text-slate-600">Loading portal...</p>;
-  if (error) return <p className="text-red-600">Error: {error}</p>;
-  if (items.length === 0) return <p className="text-slate-600">No owner deals yet.</p>;
 
   return (
     <section>
       <h1 className="text-2xl font-semibold">Owner Portal</h1>
+      <form onSubmit={createDraft} className="mt-4 space-y-2 rounded border bg-white p-4">
+        <h2 className="text-sm font-semibold">Create Draft Deal</h2>
+        <input
+          value={restaurantName}
+          onChange={(e) => setRestaurantName(e.target.value)}
+          placeholder="Restaurant name"
+          className="w-full rounded border px-3 py-2"
+          required
+        />
+        <input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Deal title"
+          className="w-full rounded border px-3 py-2"
+          required
+        />
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Deal description"
+          className="w-full rounded border px-3 py-2"
+          required
+        />
+        <input
+          type="number"
+          value={value}
+          onChange={(e) => setValue(Number(e.target.value))}
+          placeholder="Percent value"
+          className="w-full rounded border px-3 py-2"
+          min={1}
+          max={100}
+          required
+        />
+        <button className="rounded bg-indigo-600 px-3 py-1 text-xs font-medium text-white hover:bg-indigo-500">
+          Create Draft
+        </button>
+      </form>
+
+      {error ? <p className="mt-3 text-red-600">Error: {error}</p> : null}
+      {items.length === 0 ? <p className="mt-3 text-slate-600">No owner deals yet.</p> : null}
+
       <ul className="mt-4 space-y-3">
         {items.map((deal) => (
           <li key={deal._id} className="rounded border bg-white p-4">
