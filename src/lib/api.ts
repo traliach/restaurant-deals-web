@@ -33,3 +33,19 @@ export async function apiPost<T>(path: string, body?: unknown): Promise<T> {
   }
   return json.data as T;
 }
+
+export async function apiPut<T>(path: string, body?: unknown): Promise<T> {
+  const response = await fetch(`${env.apiUrl}${path}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      ...authHeaders(),
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const json = await response.json();
+  if (!response.ok || !json?.ok) {
+    throw new Error(json?.error || "Request failed");
+  }
+  return json.data as T;
+}
