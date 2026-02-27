@@ -20,11 +20,14 @@ type CreateDealInput = {
   value: number;
 };
 
+type DealStatusFilter = "ALL" | OwnerDeal["status"];
+
 export function PortalPage() {
   const [items, setItems] = useState<OwnerDeal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [statusFilter, setStatusFilter] = useState<DealStatusFilter>("ALL");
   const [restaurantName, setRestaurantName] = useState("Demo Grill");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -116,6 +119,8 @@ export function PortalPage() {
   }
 
   if (loading) return <p className="text-slate-600">Loading portal...</p>;
+  const visibleItems =
+    statusFilter === "ALL" ? items : items.filter((deal) => deal.status === statusFilter);
 
   return (
     <section>
@@ -162,8 +167,23 @@ export function PortalPage() {
       {success ? <p className="mt-3 text-emerald-700">{success}</p> : null}
       {items.length === 0 ? <p className="mt-3 text-slate-600">No owner deals yet.</p> : null}
 
+      <div className="mt-3">
+        <label className="text-xs text-slate-600">Filter status:</label>
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value as DealStatusFilter)}
+          className="ml-2 rounded border px-2 py-1 text-xs"
+        >
+          <option value="ALL">All</option>
+          <option value="DRAFT">DRAFT</option>
+          <option value="SUBMITTED">SUBMITTED</option>
+          <option value="PUBLISHED">PUBLISHED</option>
+          <option value="REJECTED">REJECTED</option>
+        </select>
+      </div>
+
       <ul className="mt-4 space-y-3">
-        {items.map((deal) => (
+        {visibleItems.map((deal) => (
           <li key={deal._id} className="rounded border bg-white p-4">
             <p className="font-semibold">{deal.title}</p>
             <p className="text-sm text-slate-600">{deal.restaurantName}</p>
