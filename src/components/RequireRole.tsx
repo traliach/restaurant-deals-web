@@ -3,6 +3,7 @@ import type { ReactElement } from "react";
 import { useAuth } from "../context/AuthContext";
 import type { Role } from "../context/AuthContext";
 
+// Blocks users without the required role.
 export function RequireRole({
   children,
   allowed,

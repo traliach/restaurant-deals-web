@@ -1,5 +1,7 @@
+// Thin fetch wrapper — unwraps { ok, data } envelope.
 import { env } from "../config/env";
 
+// Attach JWT if logged in.
 function authHeaders() {
   const token = localStorage.getItem("token");
   const headers: Record<string, string> = {};

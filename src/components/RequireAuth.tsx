@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import type { ReactElement } from "react";
 import { useAuth } from "../context/AuthContext";
 
+// Blocks unauthenticated users from protected routes.
 export function RequireAuth({ children }: { children: ReactElement }) {
   const { isLoggedIn } = useAuth();
   if (!isLoggedIn) {

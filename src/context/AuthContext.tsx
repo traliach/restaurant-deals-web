@@ -1,3 +1,4 @@
+// Global auth state for the app.
 import { createContext, useContext, useState, useCallback } from "react";
 import type { ReactNode } from "react";
 
@@ -29,6 +30,7 @@ function roleFromToken(token: string): Role | null {
   }
 }
 
+// Rehydrate from localStorage on refresh.
 function loadInitialState(): AuthState {
   const token = localStorage.getItem("token");
   if (!token) return { token: null, role: null };
