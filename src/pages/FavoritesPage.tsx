@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { apiGet } from "../lib/api";
+import { apiDelete, apiGet } from "../lib/api";
 
 type FavoriteDeal = {
   _id: string;
@@ -33,6 +33,15 @@ export function FavoritesPage() {
     loadFavorites();
   }, []);
 
+  async function removeFavorite(dealId: string, favoriteId: string) {
+    try {
+      await apiDelete(`/api/favorites/${dealId}`);
+      setItems((prev) => prev.filter((item) => item._id !== favoriteId));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to remove favorite");
+    }
+  }
+
   if (loading) return <p className="text-slate-600">Loading favorites...</p>;
 
   if (error === "unauthenticated") {
@@ -60,6 +69,12 @@ export function FavoritesPage() {
             </Link>
             <p className="text-sm text-slate-600">{item.dealId.restaurantName}</p>
             <p className="mt-2 text-sm text-slate-700">{item.dealId.description}</p>
+            <button
+              onClick={() => removeFavorite(item.dealId._id, item._id)}
+              className="mt-3 rounded border px-3 py-1 text-xs font-medium text-rose-700 hover:bg-rose-50"
+            >
+              Remove
+            </button>
           </li>
         ))}
       </ul>
