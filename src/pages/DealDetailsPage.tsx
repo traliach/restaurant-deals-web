@@ -1,12 +1,54 @@
-import { useParams } from 'react-router-dom'
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { apiGet } from "../lib/api";
+
+type Deal = {
+  _id: string;
+  title: string;
+  restaurantName: string;
+  description: string;
+  dealType?: string;
+  discountType?: string;
+  value?: number;
+};
 
 export function DealDetailsPage() {
-  const { id } = useParams()
+  const { id } = useParams();
+  const [deal, setDeal] = useState<Deal | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function loadDeal() {
+      if (!id) {
+        setError("Missing deal id");
+        setLoading(false);
+        return;
+      }
+      try {
+        const data = await apiGet<Deal>(`/api/deals/${id}`);
+        setDeal(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load deal");
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadDeal();
+  }, [id]);
+
+  if (loading) return <p className="text-slate-600">Loading deal...</p>;
+  if (error) return <p className="text-red-600">Error: {error}</p>;
+  if (!deal) return <p className="text-slate-600">Deal not found.</p>;
 
   return (
     <section>
-      <h1 className="text-2xl font-semibold">Deal Details</h1>
-      <p className="mt-2 text-slate-600">Deal id: {id ?? 'none'}</p>
+      <h1 className="text-2xl font-semibold">{deal.title}</h1>
+      <p className="mt-1 text-slate-600">{deal.restaurantName}</p>
+      <p className="mt-3 text-slate-700">{deal.description}</p>
+      <p className="mt-4 text-sm text-slate-500">
+        {deal.dealType} | {deal.discountType} | {deal.value ?? "-"}
+      </p>
     </section>
-  )
+  );
 }
