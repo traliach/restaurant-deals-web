@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
-import { apiGet, apiPost, apiPut } from "../lib/api";
+import { apiDelete, apiGet, apiPost, apiPut } from "../lib/api";
 
 type OwnerDeal = {
   _id: string;
@@ -96,6 +96,16 @@ export function PortalPage() {
     }
   }
 
+  async function deleteDeal(id: string) {
+    if (!window.confirm("Delete this draft?")) return;
+    try {
+      await apiDelete(`/api/owner/deals/${id}`);
+      setItems((prev) => prev.filter((deal) => deal._id !== id));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Delete failed");
+    }
+  }
+
   if (loading) return <p className="text-slate-600">Loading portal...</p>;
 
   return (
@@ -156,6 +166,14 @@ export function PortalPage() {
                 >
                   Edit
                 </button>
+                {deal.status === "DRAFT" ? (
+                  <button
+                    onClick={() => deleteDeal(deal._id)}
+                    className="rounded border px-3 py-1 text-xs font-medium text-rose-700 hover:bg-rose-50"
+                  >
+                    Delete
+                  </button>
+                ) : null}
                 <button
                   onClick={() => submitDeal(deal._id)}
                   className="rounded bg-indigo-600 px-3 py-1 text-xs font-medium text-white hover:bg-indigo-500"
