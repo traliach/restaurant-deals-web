@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
-import { apiGet, apiPost } from "../lib/api";
+import { apiGet, apiPost, apiPut } from "../lib/api";
 
 type OwnerDeal = {
   _id: string;
   title: string;
+  description?: string;
   status: "DRAFT" | "SUBMITTED" | "PUBLISHED" | "REJECTED";
   restaurantName: string;
 };
@@ -74,6 +75,27 @@ export function PortalPage() {
     }
   }
 
+  async function editDeal(id: string) {
+    const current = items.find((deal) => deal._id === id);
+    if (!current) return;
+
+    const nextTitle = window.prompt("New title:", current.title);
+    if (!nextTitle?.trim()) return;
+
+    const nextDescription = window.prompt("New description:", current.description ?? "");
+    if (!nextDescription?.trim()) return;
+
+    try {
+      const updated = await apiPut<OwnerDeal>(`/api/owner/deals/${id}`, {
+        title: nextTitle.trim(),
+        description: nextDescription.trim(),
+      });
+      setItems((prev) => prev.map((deal) => (deal._id === id ? { ...deal, ...updated } : deal)));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Edit failed");
+    }
+  }
+
   if (loading) return <p className="text-slate-600">Loading portal...</p>;
 
   return (
@@ -127,12 +149,20 @@ export function PortalPage() {
             <p className="text-sm text-slate-600">{deal.restaurantName}</p>
             <p className="mt-1 text-xs text-slate-500">Status: {deal.status}</p>
             {deal.status === "DRAFT" || deal.status === "REJECTED" ? (
-              <button
-                onClick={() => submitDeal(deal._id)}
-                className="mt-3 rounded bg-indigo-600 px-3 py-1 text-xs font-medium text-white hover:bg-indigo-500"
-              >
-                Submit
-              </button>
+              <div className="mt-3 flex gap-2">
+                <button
+                  onClick={() => editDeal(deal._id)}
+                  className="rounded border px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-100"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => submitDeal(deal._id)}
+                  className="rounded bg-indigo-600 px-3 py-1 text-xs font-medium text-white hover:bg-indigo-500"
+                >
+                  Submit
+                </button>
+              </div>
             ) : null}
           </li>
         ))}
