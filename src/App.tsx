@@ -9,8 +9,24 @@ import { LoginPage } from './pages/LoginPage'
 import { RequireAuth } from './components/RequireAuth'
 import { RequireRole } from './components/RequireRole'
 
+type Role = 'customer' | 'owner' | 'admin' | null
+
+function getRole(): Role {
+  const token = localStorage.getItem('token')
+  if (!token) return null
+  try {
+    const payload = token.split('.')[1]
+    if (!payload) return null
+    const json = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')))
+    return json?.role ?? null
+  } catch {
+    return null
+  }
+}
+
 function App() {
   const navigate = useNavigate()
+  const role = getRole()
 
   function logout() {
     localStorage.removeItem('token')
@@ -25,18 +41,21 @@ function App() {
             Restaurant Deals
           </NavLink>
           <NavLink to="/deals">Deals</NavLink>
-          <NavLink to="/favorites">Favorites</NavLink>
-          <NavLink to="/portal">Portal</NavLink>
-          <NavLink to="/admin">Admin</NavLink>
-          <NavLink to="/login" className="ml-auto">
-            Login
-          </NavLink>
-          <button
-            onClick={logout}
-            className="rounded border px-3 py-1 text-xs text-slate-700 hover:bg-slate-100"
-          >
-            Logout
-          </button>
+          {role ? <NavLink to="/favorites">Favorites</NavLink> : null}
+          {role === 'owner' || role === 'admin' ? <NavLink to="/portal">Portal</NavLink> : null}
+          {role === 'admin' ? <NavLink to="/admin">Admin</NavLink> : null}
+          {!role ? (
+            <NavLink to="/login" className="ml-auto">
+              Login
+            </NavLink>
+          ) : (
+            <button
+              onClick={logout}
+              className="ml-auto rounded border px-3 py-1 text-xs text-slate-700 hover:bg-slate-100"
+            >
+              Logout
+            </button>
+          )}
         </nav>
       </header>
 
