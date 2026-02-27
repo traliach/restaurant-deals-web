@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
 import type { ReactElement } from "react";
+import { useAuth } from "../context/AuthContext";
 
 export function RequireAuth({ children }: { children: ReactElement }) {
-  const token = localStorage.getItem("token");
-  if (!token) {
+  const { isLoggedIn } = useAuth();
+  if (!isLoggedIn) {
     return (
       <section>
         <h1 className="text-2xl font-semibold">Login required</h1>

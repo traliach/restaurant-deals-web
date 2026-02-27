@@ -1,20 +1,7 @@
 import { Link } from "react-router-dom";
 import type { ReactElement } from "react";
-
-type Role = "customer" | "owner" | "admin";
-
-function getTokenRole(): Role | null {
-  const token = localStorage.getItem("token");
-  if (!token) return null;
-  try {
-    const payload = token.split(".")[1];
-    if (!payload) return null;
-    const json = JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/")));
-    return json?.role ?? null;
-  } catch {
-    return null;
-  }
-}
+import { useAuth } from "../context/AuthContext";
+import type { Role } from "../context/AuthContext";
 
 export function RequireRole({
   children,
@@ -23,7 +10,7 @@ export function RequireRole({
   children: ReactElement;
   allowed: Role[];
 }) {
-  const role = getTokenRole();
+  const { role } = useAuth();
   if (!role || !allowed.includes(role)) {
     return (
       <section>
