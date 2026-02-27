@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import { apiGet } from "../lib/api";
 
@@ -22,16 +22,29 @@ type DealsResponse = {
 type DealTypeFilter = "" | "Lunch" | "Carryout" | "Delivery" | "Other";
 type SortOption = "newest" | "value";
 
+// Delays API calls until the user stops typing for 300ms.
+function useDebounce(value: string, ms = 300) {
+  const [debounced, setDebounced] = useState(value);
+  const timer = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(() => {
+    timer.current = setTimeout(() => setDebounced(value), ms);
+    return () => clearTimeout(timer.current);
+  }, [value, ms]);
+  return debounced;
+}
+
 export function DealsPage() {
   const [deals, setDeals] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search);
   const [dealType, setDealType] = useState<DealTypeFilter>("");
   const [sort, setSort] = useState<SortOption>("newest");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
 
   const loadDeals = useCallback(async () => {
     setLoading(true);
@@ -40,19 +53,20 @@ export function DealsPage() {
       const params = new URLSearchParams();
       params.set("page", String(page));
       params.set("limit", "9");
-      if (search.trim()) params.set("q", search.trim());
+      if (debouncedSearch.trim()) params.set("q", debouncedSearch.trim());
       if (dealType) params.set("dealType", dealType);
       if (sort === "value") params.set("sort", "value");
 
       const data = await apiGet<DealsResponse>(`/api/deals?${params}`);
       setDeals(data.items ?? []);
       setTotalPages(data.totalPages ?? 1);
+      setTotal(data.total ?? 0);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load deals");
     } finally {
       setLoading(false);
     }
-  }, [page, search, dealType, sort]);
+  }, [page, debouncedSearch, dealType, sort]);
 
   useEffect(() => {
     loadDeals();
@@ -60,6 +74,11 @@ export function DealsPage() {
 
   function handleSearch(value: string) {
     setSearch(value);
+    setPage(1);
+  }
+
+  function clearSearch() {
+    setSearch("");
     setPage(1);
   }
 
@@ -89,13 +108,24 @@ export function DealsPage() {
       <div className="mt-4 flex flex-wrap items-end gap-3">
         <div className="flex-1 min-w-[200px]">
           <label className="block text-xs font-medium text-slate-600 mb-1">Search</label>
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => handleSearch(e.target.value)}
-            placeholder="Search deals..."
-            className="w-full rounded border px-3 py-2 text-sm"
-          />
+          <div className="relative">
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => handleSearch(e.target.value)}
+              placeholder="Search deals..."
+              className="w-full rounded border px-3 py-2 pr-8 text-sm"
+            />
+            {search ? (
+              <button
+                onClick={clearSearch}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                aria-label="Clear search"
+              >
+                &times;
+              </button>
+            ) : null}
+          </div>
         </div>
         <div>
           <label className="block text-xs font-medium text-slate-600 mb-1">Type</label>
@@ -123,6 +153,14 @@ export function DealsPage() {
           </select>
         </div>
       </div>
+
+      {/* Result count */}
+      {!loading && !error ? (
+        <p className="mt-3 text-xs text-slate-500">
+          {total} deal{total !== 1 ? "s" : ""} found
+          {debouncedSearch.trim() ? ` for "${debouncedSearch.trim()}"` : ""}
+        </p>
+      ) : null}
 
       {/* Results */}
       {loading ? (
