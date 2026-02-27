@@ -8,6 +8,7 @@ type OwnerDeal = {
   description?: string;
   status: "DRAFT" | "SUBMITTED" | "PUBLISHED" | "REJECTED";
   restaurantName: string;
+  rejectionReason?: string;
 };
 
 type CreateDealInput = {
@@ -46,7 +47,9 @@ export function PortalPage() {
     try {
       await apiPost(`/api/owner/deals/${id}/submit`);
       setItems((prev) =>
-        prev.map((deal) => (deal._id === id ? { ...deal, status: "SUBMITTED" } : deal))
+        prev.map((deal) =>
+          deal._id === id ? { ...deal, status: "SUBMITTED", rejectionReason: "" } : deal
+        )
       );
     } catch (err) {
       setError(err instanceof Error ? err.message : "Submit failed");
@@ -158,6 +161,9 @@ export function PortalPage() {
             <p className="font-semibold">{deal.title}</p>
             <p className="text-sm text-slate-600">{deal.restaurantName}</p>
             <p className="mt-1 text-xs text-slate-500">Status: {deal.status}</p>
+            {deal.status === "REJECTED" && deal.rejectionReason ? (
+              <p className="mt-2 text-xs text-rose-700">Reason: {deal.rejectionReason}</p>
+            ) : null}
             {deal.status === "DRAFT" || deal.status === "REJECTED" ? (
               <div className="mt-3 flex gap-2">
                 <button
