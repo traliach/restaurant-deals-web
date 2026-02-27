@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { apiGet } from "../lib/api";
 
 type Deal = {
@@ -41,7 +42,9 @@ export function DealsPage() {
       <ul className="mt-4 space-y-3">
         {deals.map((deal) => (
           <li key={deal._id} className="rounded border bg-white p-4">
-            <h2 className="font-semibold">{deal.title}</h2>
+            <Link to={`/deals/${deal._id}`} className="font-semibold text-indigo-700 hover:underline">
+              {deal.title}
+            </Link>
             <p className="text-sm text-slate-600">{deal.restaurantName}</p>
             <p className="mt-2 text-sm text-slate-700">{deal.description}</p>
           </li>
