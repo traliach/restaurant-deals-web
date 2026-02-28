@@ -12,6 +12,7 @@ import { LoginPage } from './pages/LoginPage'
 import { RegisterPage } from './pages/RegisterPage'
 import { CartPage } from './pages/CartPage'
 import { CheckoutPage } from './pages/CheckoutPage'
+import { OrdersPage } from './pages/OrdersPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { RequireAuth } from './components/RequireAuth'
 import { RequireRole } from './components/RequireRole'
@@ -53,6 +54,9 @@ function App() {
           <div className={`${menuOpen ? 'flex' : 'hidden'} w-full flex-col gap-2 pt-2 sm:flex sm:w-auto sm:flex-row sm:items-center sm:gap-4 sm:pt-0`}>
             <NavLink to="/deals" onClick={closeMenu}>Deals</NavLink>
             <NavLink to="/favorites" onClick={closeMenu}>Favorites</NavLink>
+            {role === 'customer' && (
+              <NavLink to="/orders" onClick={closeMenu}>Orders</NavLink>
+            )}
             <NavLink to="/cart" onClick={closeMenu} className="relative">
               Cart
               {count > 0 && (
@@ -110,6 +114,14 @@ function App() {
             }
           />
           <Route path="/cart" element={<CartPage />} />
+          <Route
+            path="/orders"
+            element={
+              <RequireAuth>
+                <OrdersPage />
+              </RequireAuth>
+            }
+          />
           <Route
             path="/checkout"
             element={
