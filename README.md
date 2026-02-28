@@ -6,9 +6,15 @@ React frontend for a moderated restaurant deals marketplace. Customers browse an
 
 - Role-aware navigation (customer, owner, admin)
 - Deals explorer with live search, type filter, sort, and pagination
-- Deal detail page with favorite toggle
+- Deal detail page with favorite toggle and Add to Cart
 - Owner portal: create drafts, inline edit, submit for review
-- Admin queue: approve or reject with inline reason form
+- Admin queue: approve/reject with inline reason form + bot audit tab
+- Cart with item count badge, quantity tracking, and checkout flow
+- Stripe checkout with CardElement for secure payment
+- Order history page with status badges
+- Notifications bell with unread count and mark-read
+- Floating AI chat widget (powered by OpenAI via backend)
+- Explore page: search real restaurants via Foursquare, pre-fill portal
 - Register / login with JWT stored in context
 - Responsive layout with mobile hamburger menu
 - 404 catch-all page
@@ -43,22 +49,27 @@ Make sure the backend API is running first.
 
 ## Environment Variables
 
-| Variable       | Description           | Example                |
-|----------------|-----------------------|------------------------|
-| `VITE_API_URL` | Backend API base URL  | `http://localhost:3000` |
+| Variable                     | Description                        | Required        |
+|------------------------------|------------------------------------|-----------------|
+| `VITE_API_URL`               | Backend API base URL               | Yes             |
+| `VITE_STRIPE_PUBLISHABLE_KEY`| Stripe publishable key (`pk_test_`)| For payments    |
 
 ## Routes
 
-| Path          | Page          | Access        |
-|---------------|---------------|---------------|
-| `/`           | Home          | Public        |
-| `/deals`      | Deals Explorer| Public        |
-| `/deals/:id`  | Deal Details  | Public        |
-| `/favorites`  | Favorites     | Auth required |
-| `/portal`     | Owner Portal  | Owner / Admin |
-| `/admin`      | Admin Queue   | Admin only    |
-| `/login`      | Login         | Public        |
-| `/register`   | Register      | Public        |
+| Path          | Page              | Access        |
+|---------------|-------------------|---------------|
+| `/`           | Home              | Public        |
+| `/deals`      | Deals Explorer    | Public        |
+| `/deals/:id`  | Deal Details      | Public        |
+| `/favorites`  | Favorites         | Auth required |
+| `/cart`       | Cart              | Public        |
+| `/checkout`   | Checkout          | Auth required |
+| `/orders`     | Order History     | Customer      |
+| `/explore`    | Restaurant Search | Owner         |
+| `/portal`     | Owner Portal      | Owner / Admin |
+| `/admin`      | Admin Panel       | Admin only    |
+| `/login`      | Login             | Public        |
+| `/register`   | Register          | Public        |
 
 ## Project Structure
 
@@ -96,4 +107,4 @@ src/
 
 ## Related
 
-- Backend repo: [restaurant-deals-api](../restaurant-deals-api)
+- Backend repo: [restaurant-deals-api](https://github.com/traliach/restaurant-deals-api)
