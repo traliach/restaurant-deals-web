@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 
 export type CartItem = {
   dealId: string;
@@ -20,8 +20,20 @@ type CartContextValue = {
 
 const CartContext = createContext<CartContextValue | null>(null);
 
+const CART_KEY = "restaurant_deals_cart";
+
+function loadCart(): CartItem[] {
+  try {
+    const raw = localStorage.getItem(CART_KEY);
+    return raw ? (JSON.parse(raw) as CartItem[]) : [];
+  } catch {
+    return [];
+  }
+}
+
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([]);
+  // Rehydrate from localStorage on first render.
+  const [items, setItems] = useState<CartItem[]>(loadCart);
 
   const addItem = useCallback((item: Omit<CartItem, "qty">) => {
     setItems((prev) => {
@@ -50,6 +62,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const clearCart = useCallback(() => setItems([]), []);
+
+  // Sync to localStorage whenever items change.
+  useEffect(() => {
+    localStorage.setItem(CART_KEY, JSON.stringify(items));
+  }, [items]);
 
   const total = items.reduce((sum, i) => sum + i.price * i.qty, 0);
   const count = items.reduce((sum, i) => sum + i.qty, 0);
