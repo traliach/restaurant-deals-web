@@ -12,6 +12,7 @@ import { LoginPage } from './pages/LoginPage'
 import { RegisterPage } from './pages/RegisterPage'
 import { CartPage } from './pages/CartPage'
 import { CheckoutPage } from './pages/CheckoutPage'
+import { ExplorePage } from './pages/ExplorePage'
 import { OrdersPage } from './pages/OrdersPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { ChatWidget } from './components/ChatWidget'
@@ -68,6 +69,7 @@ function App() {
               )}
             </NavLink>
             {role === 'owner' || role === 'admin' ? <NavLink to="/portal" onClick={closeMenu}>Portal</NavLink> : null}
+            {role === 'owner' ? <NavLink to="/explore" onClick={closeMenu}>Explore</NavLink> : null}
             {role === 'admin' ? <NavLink to="/admin" onClick={closeMenu}>Admin</NavLink> : null}
             {!role ? (
               <span className="flex gap-3 sm:ml-auto">
@@ -114,6 +116,16 @@ function App() {
               <RequireAuth>
                 <RequireRole allowed={['admin']}>
                   <AdminPage />
+                </RequireRole>
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/explore"
+            element={
+              <RequireAuth>
+                <RequireRole allowed={['owner']}>
+                  <ExplorePage />
                 </RequireRole>
               </RequireAuth>
             }
