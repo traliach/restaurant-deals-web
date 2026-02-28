@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 
 export function CartPage() {
-  const { items, removeItem, total, count } = useCart();
+  const { items, addItem, removeItem, decrementItem, total, count } = useCart();
 
   if (count === 0) {
     return (
@@ -25,22 +25,36 @@ export function CartPage() {
             key={item.dealId}
             className="flex items-center justify-between rounded-lg border bg-white px-4 py-3"
           >
-            <div>
+            <div className="flex-1">
               <p className="font-medium">{item.title}</p>
               <p className="text-sm text-slate-500">{item.restaurantName}</p>
-              <p className="text-sm text-slate-600">
-                ${item.price.toFixed(2)} × {item.qty}
-              </p>
+              <p className="text-sm text-slate-400">${item.price.toFixed(2)} each</p>
             </div>
-            <div className="flex items-center gap-4">
-              <span className="font-semibold">
+            <div className="flex items-center gap-3">
+              {/* Quantity controls */}
+              <div className="flex items-center gap-1 rounded border">
+                <button
+                  onClick={() => decrementItem(item.dealId)}
+                  className="px-2 py-1 text-slate-600 hover:bg-slate-100 rounded-l"
+                >
+                  −
+                </button>
+                <span className="w-8 text-center text-sm font-medium">{item.qty}</span>
+                <button
+                  onClick={() => addItem({ dealId: item.dealId, title: item.title, restaurantName: item.restaurantName, price: item.price })}
+                  className="px-2 py-1 text-slate-600 hover:bg-slate-100 rounded-r"
+                >
+                  +
+                </button>
+              </div>
+              <span className="w-16 text-right font-semibold">
                 ${(item.price * item.qty).toFixed(2)}
               </span>
               <button
                 onClick={() => removeItem(item.dealId)}
-                className="text-sm text-red-500 hover:underline"
+                className="text-sm text-red-400 hover:text-red-600"
               >
-                Remove
+                ✕
               </button>
             </div>
           </li>

@@ -12,6 +12,7 @@ type CartContextValue = {
   items: CartItem[];
   addItem: (item: Omit<CartItem, "qty">) => void;
   removeItem: (dealId: string) => void;
+  decrementItem: (dealId: string) => void;
   clearCart: () => void;
   total: number;
   count: number;
@@ -39,13 +40,22 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setItems((prev) => prev.filter((i) => i.dealId !== dealId));
   }, []);
 
+  // Decrease qty by 1 — removes item when qty reaches 0.
+  const decrementItem = useCallback((dealId: string) => {
+    setItems((prev) =>
+      prev
+        .map((i) => (i.dealId === dealId ? { ...i, qty: i.qty - 1 } : i))
+        .filter((i) => i.qty > 0)
+    );
+  }, []);
+
   const clearCart = useCallback(() => setItems([]), []);
 
   const total = items.reduce((sum, i) => sum + i.price * i.qty, 0);
   const count = items.reduce((sum, i) => sum + i.qty, 0);
 
   return (
-    <CartContext.Provider value={{ items, addItem, removeItem, clearCart, total, count }}>
+    <CartContext.Provider value={{ items, addItem, removeItem, decrementItem, clearCart, total, count }}>
       {children}
     </CartContext.Provider>
   );
