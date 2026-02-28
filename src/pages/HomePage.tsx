@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { apiGet } from "../lib/api";
+import { DealCard } from "../components/DealCard";
 
 type Deal = {
   _id: string;
@@ -16,14 +17,6 @@ type Deal = {
 type DealsResponse = {
   items: Deal[];
 };
-
-function formatDiscount(deal: Deal) {
-  if (!deal.discountType || deal.value == null) return null;
-  if (deal.discountType === "percent") return `${deal.value}% off`;
-  if (deal.discountType === "amount") return `$${deal.value} off`;
-  if (deal.discountType === "bogo") return "BOGO";
-  return deal.discountType;
-}
 
 export function HomePage() {
   const { role } = useAuth();
@@ -96,31 +89,16 @@ export function HomePage() {
         ) : (
           <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {featured.map((deal) => (
-              <div
+              <DealCard
                 key={deal._id}
-                className="flex flex-col rounded-lg border bg-white p-4 hover:shadow transition-shadow"
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <Link
-                    to={`/deals/${deal._id}`}
-                    className="font-semibold text-indigo-700 hover:underline"
-                  >
-                    {deal.title}
-                  </Link>
-                  {deal.dealType ? (
-                    <span className="shrink-0 rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
-                      {deal.dealType}
-                    </span>
-                  ) : null}
-                </div>
-                <p className="mt-1 text-sm text-slate-600">{deal.restaurantName}</p>
-                <p className="mt-2 text-sm text-slate-700 line-clamp-2">{deal.description}</p>
-                {formatDiscount(deal) ? (
-                  <p className="mt-auto pt-3 text-sm font-semibold text-emerald-700">
-                    {formatDiscount(deal)}
-                  </p>
-                ) : null}
-              </div>
+                id={deal._id}
+                title={deal.title}
+                restaurantName={deal.restaurantName}
+                description={deal.description}
+                dealType={deal.dealType}
+                discountType={deal.discountType}
+                value={deal.value}
+              />
             ))}
           </div>
         )}

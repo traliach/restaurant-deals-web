@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { apiDelete, apiGet } from "../lib/api";
+import { DealCard } from "../components/DealCard";
 
 type FavoriteDeal = {
   _id: string;
@@ -61,23 +62,24 @@ export function FavoritesPage() {
   return (
     <section>
       <h1 className="text-2xl font-semibold">Favorites</h1>
-      <ul className="mt-4 space-y-3">
+      <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((item) => (
-          <li key={item._id} className="rounded border bg-white p-4">
-            <Link to={`/deals/${item.dealId._id}`} className="font-semibold text-indigo-700 hover:underline">
-              {item.dealId.title}
-            </Link>
-            <p className="text-sm text-slate-600">{item.dealId.restaurantName}</p>
-            <p className="mt-2 text-sm text-slate-700">{item.dealId.description}</p>
+          <DealCard
+            key={item._id}
+            id={item.dealId._id}
+            title={item.dealId.title}
+            restaurantName={item.dealId.restaurantName}
+            description={item.dealId.description}
+          >
             <button
               onClick={() => removeFavorite(item.dealId._id, item._id)}
               className="mt-3 rounded border px-3 py-1 text-xs font-medium text-rose-700 hover:bg-rose-50"
             >
               Remove
             </button>
-          </li>
+          </DealCard>
         ))}
-      </ul>
+      </div>
     </section>
   );
 }
