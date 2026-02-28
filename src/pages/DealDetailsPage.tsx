@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { useCart } from "../context/CartContext";
 import { apiGet, apiPost } from "../lib/api";
 
 type Deal = {
@@ -10,14 +11,17 @@ type Deal = {
   dealType?: string;
   discountType?: string;
   value?: number;
+  price?: number;
 };
 
 export function DealDetailsPage() {
   const { id } = useParams();
+  const { addItem } = useCart();
   const [deal, setDeal] = useState<Deal | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [favMsg, setFavMsg] = useState("");
+  const [cartMsg, setCartMsg] = useState("");
 
   useEffect(() => {
     async function loadDeal() {
@@ -61,13 +65,31 @@ export function DealDetailsPage() {
       <p className="mt-4 text-sm text-slate-500">
         {deal.dealType} | {deal.discountType} | {deal.value ?? "-"}
       </p>
-      <button
-        onClick={saveFavorite}
-        className="mt-4 rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500"
-      >
-        Save Favorite
-      </button>
+      <div className="mt-4 flex gap-3">
+        <button
+          onClick={saveFavorite}
+          className="rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500"
+        >
+          Save Favorite
+        </button>
+        <button
+          onClick={() => {
+            addItem({
+              dealId: deal._id,
+              title: deal.title,
+              restaurantName: deal.restaurantName,
+              price: deal.price ?? 0,
+            });
+            setCartMsg("Added to cart!");
+            setTimeout(() => setCartMsg(""), 2000);
+          }}
+          className="rounded bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500"
+        >
+          Add to Cart
+        </button>
+      </div>
       {favMsg ? <p className="mt-2 text-sm text-slate-600">{favMsg}</p> : null}
+      {cartMsg ? <p className="mt-1 text-sm text-emerald-600">{cartMsg}</p> : null}
     </section>
   );
 }
