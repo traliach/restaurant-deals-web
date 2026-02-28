@@ -14,6 +14,7 @@ import { CartPage } from './pages/CartPage'
 import { CheckoutPage } from './pages/CheckoutPage'
 import { OrdersPage } from './pages/OrdersPage'
 import { NotFoundPage } from './pages/NotFoundPage'
+import { NotificationsBell } from './components/NotificationsBell'
 import { RequireAuth } from './components/RequireAuth'
 import { RequireRole } from './components/RequireRole'
 
@@ -73,12 +74,15 @@ function App() {
                 <NavLink to="/register" onClick={closeMenu}>Register</NavLink>
               </span>
             ) : (
-              <button
-                onClick={handleLogout}
-                className="sm:ml-auto rounded border px-3 py-1 text-xs text-slate-700 hover:bg-slate-100"
-              >
-                Logout
-              </button>
+              <span className="flex items-center gap-3 sm:ml-auto">
+                <NotificationsBell />
+                <button
+                  onClick={handleLogout}
+                  className="rounded border px-3 py-1 text-xs text-slate-700 hover:bg-slate-100"
+                >
+                  Logout
+                </button>
+              </span>
             )}
           </div>
         </nav>
