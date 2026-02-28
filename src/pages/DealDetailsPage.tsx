@@ -53,43 +53,80 @@ export function DealDetailsPage() {
     }
   }
 
+  function formatDiscount(type?: string, value?: number) {
+    if (type === "percent" && value != null) return `${value}% Off`;
+    if (type === "amount" && value != null) return `$${value} Off`;
+    if (type === "bogo") return "Buy One Get One Free";
+    if (type === "other") return "Special Offer";
+    return null;
+  }
+
   if (loading) return <p className="text-slate-600">Loading deal...</p>;
   if (error) return <p className="text-red-600">Error: {error}</p>;
   if (!deal) return <p className="text-slate-600">Deal not found.</p>;
 
+  const discountLabel = formatDiscount(deal.discountType, deal.value);
+
   return (
-    <section>
-      <h1 className="text-2xl font-semibold">{deal.title}</h1>
-      <p className="mt-1 text-slate-600">{deal.restaurantName}</p>
-      <p className="mt-3 text-slate-700">{deal.description}</p>
-      <p className="mt-4 text-sm text-slate-500">
-        {deal.dealType} | {deal.discountType} | {deal.value ?? "-"}
-      </p>
-      <div className="mt-4 flex gap-3">
-        <button
-          onClick={saveFavorite}
-          className="rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500"
-        >
-          Save Favorite
-        </button>
-        <button
-          onClick={() => {
-            addItem({
-              dealId: deal._id,
-              title: deal.title,
-              restaurantName: deal.restaurantName,
-              price: deal.price ?? 0,
-            });
-            setCartMsg("Added to cart!");
-            setTimeout(() => setCartMsg(""), 2000);
-          }}
-          className="rounded bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500"
-        >
-          Add to Cart
-        </button>
+    <section className="mx-auto max-w-2xl">
+      {/* Header */}
+      <div className="rounded-xl border bg-white p-6 shadow-sm">
+        <div className="flex items-start justify-between gap-3">
+          <h1 className="text-2xl font-bold text-slate-900">{deal.title}</h1>
+          {deal.dealType && (
+            <span className="shrink-0 rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700">
+              {deal.dealType}
+            </span>
+          )}
+        </div>
+
+        <p className="mt-1 text-base font-medium text-slate-600">{deal.restaurantName}</p>
+
+        <p className="mt-4 text-slate-700 leading-relaxed">{deal.description}</p>
+
+        {/* Discount highlight */}
+        {discountLabel && (
+          <div className="mt-5 rounded-lg bg-emerald-50 border border-emerald-200 px-4 py-3">
+            <p className="text-lg font-bold text-emerald-700">{discountLabel}</p>
+          </div>
+        )}
+
+        {/* Price */}
+        {deal.price != null && deal.price > 0 && (
+          <p className="mt-3 text-2xl font-bold text-slate-900">
+            ${deal.price.toFixed(2)}
+            <span className="ml-2 text-sm font-normal text-slate-400">per order</span>
+          </p>
+        )}
+
+        {/* Actions */}
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+          <button
+            onClick={() => {
+              addItem({
+                dealId: deal._id,
+                title: deal.title,
+                restaurantName: deal.restaurantName,
+                price: deal.price ?? 0,
+              });
+              setCartMsg("Added to cart!");
+              setTimeout(() => setCartMsg(""), 2000);
+            }}
+            className="flex-1 rounded-lg bg-emerald-600 py-3 text-sm font-semibold text-white hover:bg-emerald-500"
+          >
+            Add to Cart
+          </button>
+          <button
+            onClick={saveFavorite}
+            className="flex-1 rounded-lg border border-indigo-600 py-3 text-sm font-semibold text-indigo-600 hover:bg-indigo-50"
+          >
+            ♡ Save to Favorites
+          </button>
+        </div>
+
+        {cartMsg && <p className="mt-3 text-center text-sm font-medium text-emerald-600">{cartMsg}</p>}
+        {favMsg && <p className="mt-2 text-center text-sm text-slate-600">{favMsg}</p>}
       </div>
-      {favMsg ? <p className="mt-2 text-sm text-slate-600">{favMsg}</p> : null}
-      {cartMsg ? <p className="mt-1 text-sm text-emerald-600">{cartMsg}</p> : null}
     </section>
   );
 }
