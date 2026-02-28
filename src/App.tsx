@@ -14,6 +14,7 @@ import { CartPage } from './pages/CartPage'
 import { CheckoutPage } from './pages/CheckoutPage'
 import { OrdersPage } from './pages/OrdersPage'
 import { NotFoundPage } from './pages/NotFoundPage'
+import { ChatWidget } from './components/ChatWidget'
 import { NotificationsBell } from './components/NotificationsBell'
 import { RequireAuth } from './components/RequireAuth'
 import { RequireRole } from './components/RequireRole'
@@ -139,6 +140,7 @@ function App() {
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>
+      {role && <ChatWidget />}
     </div>
   )
 }

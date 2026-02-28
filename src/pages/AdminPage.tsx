@@ -2,6 +2,14 @@ import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { apiGet, apiPost } from "../lib/api";
 
+type BotLog = {
+  _id: string;
+  intent: string;
+  action: string;
+  createdAt: string;
+  userId?: { email: string };
+};
+
 type SubmittedDeal = {
   _id: string;
   title: string;
@@ -13,10 +21,14 @@ type SubmittedDeal = {
 };
 
 export function AdminPage() {
+  const [tab, setTab] = useState<"queue" | "bot">("queue");
   const [items, setItems] = useState<SubmittedDeal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  const [botLogs, setBotLogs] = useState<BotLog[]>([]);
+  const [botLoading, setBotLoading] = useState(false);
 
   // Inline reject state — null means not rejecting
   const [rejectingId, setRejectingId] = useState<string | null>(null);
@@ -74,17 +86,65 @@ export function AdminPage() {
     }
   }
 
+  function loadBotLogs() {
+    setBotLoading(true);
+    apiGet<BotLog[]>("/api/admin/bot-interactions")
+      .then(setBotLogs)
+      .catch(() => {})
+      .finally(() => setBotLoading(false));
+  }
+
   if (loading) return <p className="text-slate-600">Loading admin queue...</p>;
 
   return (
     <section>
-      <h1 className="text-2xl font-semibold">Admin Queue</h1>
+      <h1 className="text-2xl font-semibold">Admin Panel</h1>
+
+      {/* Tab switcher */}
+      <div className="mt-4 mb-6 flex gap-2">
+        <button
+          onClick={() => setTab("queue")}
+          className={`rounded px-4 py-1.5 text-sm font-medium ${tab === "queue" ? "bg-indigo-600 text-white" : "border text-slate-700 hover:bg-slate-100"}`}
+        >
+          Deal Queue {items.length > 0 && `(${items.length})`}
+        </button>
+        <button
+          onClick={() => { setTab("bot"); if (botLogs.length === 0) loadBotLogs(); }}
+          className={`rounded px-4 py-1.5 text-sm font-medium ${tab === "bot" ? "bg-indigo-600 text-white" : "border text-slate-700 hover:bg-slate-100"}`}
+        >
+          Bot Audit
+        </button>
+      </div>
+
+      {tab === "bot" && (
+        <div>
+          {botLoading && <p className="text-slate-600">Loading logs...</p>}
+          {!botLoading && botLogs.length === 0 && <p className="text-slate-500">No bot interactions yet.</p>}
+          <ul className="space-y-3">
+            {botLogs.map((log) => (
+              <li key={log._id} className="rounded-lg border bg-white p-4 text-sm">
+                <p className="text-xs text-slate-400 mb-1">
+                  {log.userId?.email ?? "Unknown"} — {new Date(log.createdAt).toLocaleString()}
+                </p>
+                <p><span className="font-medium text-slate-700">Intent:</span> {log.intent}</p>
+                <p className="mt-1 text-slate-600"><span className="font-medium">Response:</span> {log.action}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {tab === "queue" && (
+      <div>
       <p className="mt-1 text-sm text-slate-600">
         {items.length} deal{items.length !== 1 ? "s" : ""} awaiting review
       </p>
 
       {error ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
       {success ? <p className="mt-3 text-sm text-emerald-700">{success}</p> : null}
+      <p className="mt-1 text-sm text-slate-600">
+        {items.length} deal{items.length !== 1 ? "s" : ""} awaiting review
+      </p>
 
       {items.length === 0 ? (
         <p className="mt-6 text-slate-600">No deals pending review. All caught up.</p>
@@ -157,6 +217,8 @@ export function AdminPage() {
             </li>
           ))}
         </ul>
+      )}
+      </div>
       )}
     </section>
   );
