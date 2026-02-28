@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
+import { useLocation } from "react-router-dom";
 import { apiDelete, apiGet, apiPost, apiPut } from "../lib/api";
 
 type DealType = "Lunch" | "Carryout" | "Delivery" | "Other";
@@ -35,6 +36,9 @@ const DEAL_TYPES: DealType[] = ["Lunch", "Carryout", "Delivery", "Other"];
 const DISCOUNT_TYPES: DiscountType[] = ["percent", "amount", "bogo", "other"];
 
 export function PortalPage() {
+  const location = useLocation();
+  const prefill = (location.state as { prefill?: { restaurantName?: string } } | null)?.prefill;
+
   const [tab, setTab] = useState<"deals" | "orders">("deals");
   const [items, setItems] = useState<OwnerDeal[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,8 +49,8 @@ export function PortalPage() {
   const [orders, setOrders] = useState<OwnerOrder[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
 
-  // Create form state
-  const [restaurantName, setRestaurantName] = useState("");
+  // Create form state — pre-fill from Explore page if navigated with state.
+  const [restaurantName, setRestaurantName] = useState(prefill?.restaurantName ?? "");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [dealType, setDealType] = useState<DealType>("Lunch");
