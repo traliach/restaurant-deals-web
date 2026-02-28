@@ -5,6 +5,17 @@ import { apiDelete, apiGet, apiPost, apiPut } from "../lib/api";
 type DealType = "Lunch" | "Carryout" | "Delivery" | "Other";
 type DiscountType = "percent" | "amount" | "bogo" | "other";
 
+type OrderStatus = "Placed" | "Preparing" | "Ready" | "Completed";
+
+type OwnerOrder = {
+  _id: string;
+  userId: string;
+  items: { title: string; qty: number; price: number }[];
+  total: number;
+  status: OrderStatus;
+  createdAt: string;
+};
+
 type OwnerDeal = {
   _id: string;
   title: string;
@@ -24,11 +35,15 @@ const DEAL_TYPES: DealType[] = ["Lunch", "Carryout", "Delivery", "Other"];
 const DISCOUNT_TYPES: DiscountType[] = ["percent", "amount", "bogo", "other"];
 
 export function PortalPage() {
+  const [tab, setTab] = useState<"deals" | "orders">("deals");
   const [items, setItems] = useState<OwnerDeal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [statusFilter, setStatusFilter] = useState<DealStatusFilter>("ALL");
+
+  const [orders, setOrders] = useState<OwnerOrder[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
 
   // Create form state
   const [restaurantName, setRestaurantName] = useState("");
@@ -140,15 +155,106 @@ export function PortalPage() {
     }
   }
 
+  function loadOrders() {
+    setOrdersLoading(true);
+    apiGet<OwnerOrder[]>("/api/owner/orders")
+      .then(setOrders)
+      .catch(() => {})
+      .finally(() => setOrdersLoading(false));
+  }
+
+  async function updateOrderStatus(orderId: string, status: OrderStatus) {
+    try {
+      await apiPut(`/api/owner/orders/${orderId}/status`, { status });
+      setOrders((prev) =>
+        prev.map((o) => (o._id === orderId ? { ...o, status } : o))
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Status update failed");
+    }
+  }
+
   if (loading) return <p className="text-slate-600">Loading portal...</p>;
 
   const visibleItems =
     statusFilter === "ALL" ? items : items.filter((deal) => deal.status === statusFilter);
 
+  const ORDER_STATUSES: OrderStatus[] = ["Placed", "Preparing", "Ready", "Completed"];
+  const statusColors: Record<OrderStatus, string> = {
+    Placed: "bg-blue-100 text-blue-700",
+    Preparing: "bg-amber-100 text-amber-700",
+    Ready: "bg-emerald-100 text-emerald-700",
+    Completed: "bg-slate-100 text-slate-500",
+  };
+
   return (
     <section>
       <h1 className="text-2xl font-semibold">Owner Portal</h1>
 
+      {/* Tab switcher */}
+      <div className="mt-4 mb-6 flex gap-2">
+        <button
+          onClick={() => setTab("deals")}
+          className={`rounded px-4 py-1.5 text-sm font-medium ${tab === "deals" ? "bg-indigo-600 text-white" : "border text-slate-700 hover:bg-slate-100"}`}
+        >
+          My Deals
+        </button>
+        <button
+          onClick={() => { setTab("orders"); if (orders.length === 0) loadOrders(); }}
+          className={`rounded px-4 py-1.5 text-sm font-medium ${tab === "orders" ? "bg-indigo-600 text-white" : "border text-slate-700 hover:bg-slate-100"}`}
+        >
+          Incoming Orders
+        </button>
+      </div>
+
+      {/* Orders tab */}
+      {tab === "orders" && (
+        <div>
+          {ordersLoading && <p className="text-slate-600">Loading orders...</p>}
+          {!ordersLoading && orders.length === 0 && (
+            <p className="text-slate-500">No orders yet for your restaurant.</p>
+          )}
+          <ul className="space-y-4">
+            {orders.map((order) => (
+              <li key={order._id} className="rounded-lg border bg-white p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColors[order.status]}`}>
+                    {order.status}
+                  </span>
+                  <span className="text-xs text-slate-400">
+                    {new Date(order.createdAt).toLocaleString()}
+                  </span>
+                </div>
+                <ul className="text-sm text-slate-700 space-y-0.5">
+                  {order.items.map((item, i) => (
+                    <li key={i} className="flex justify-between">
+                      <span>{item.title} × {item.qty}</span>
+                      <span>${(item.price * item.qty).toFixed(2)}</span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-2 flex items-center justify-between border-t pt-2">
+                  <span className="text-sm font-semibold">Total: ${order.total.toFixed(2)}</span>
+                  {order.status !== "Completed" && (
+                    <select
+                      value={order.status}
+                      onChange={(e) => updateOrderStatus(order._id, e.target.value as OrderStatus)}
+                      className="rounded border px-2 py-1 text-xs"
+                    >
+                      {ORDER_STATUSES.map((s) => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {tab === "deals" && (
+      <div>
       {/* Create form */}
       <form onSubmit={createDraft} className="mt-4 space-y-2 rounded-lg border bg-white p-4">
         <h2 className="text-sm font-semibold">Create Draft Deal</h2>
@@ -342,6 +448,8 @@ export function PortalPage() {
           </li>
         ))}
       </ul>
+      </div>
+      )}
     </section>
   );
 }
