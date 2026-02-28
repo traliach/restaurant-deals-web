@@ -12,6 +12,7 @@ type Deal = {
   discountType?: string;
   value?: number;
   price?: number;
+  imageUrl?: string;
 };
 
 export function DealDetailsPage() {
@@ -70,7 +71,15 @@ export function DealDetailsPage() {
   return (
     <section className="mx-auto max-w-2xl">
       {/* Header */}
-      <div className="rounded-xl border bg-white p-6 shadow-sm">
+      <div className="rounded-xl border bg-white shadow-sm overflow-hidden">
+        {deal.imageUrl && (
+          <img
+            src={deal.imageUrl}
+            alt={deal.title}
+            className="h-56 w-full object-cover"
+          />
+        )}
+        <div className="p-6">
         <div className="flex items-start justify-between gap-3">
           <h1 className="text-2xl font-bold text-slate-900">{deal.title}</h1>
           {deal.dealType && (
@@ -126,6 +135,7 @@ export function DealDetailsPage() {
 
         {cartMsg && <p className="mt-3 text-center text-sm font-medium text-emerald-600">{cartMsg}</p>}
         {favMsg && <p className="mt-2 text-center text-sm text-slate-600">{favMsg}</p>}
+        </div>
       </div>
     </section>
   );

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useCart } from "../context/CartContext";
 import { apiDelete, apiGet } from "../lib/api";
 import { DealCard } from "../components/DealCard";
 
@@ -8,6 +9,7 @@ type FavoriteDeal = {
   title: string;
   restaurantName: string;
   description: string;
+  price?: number;
 };
 
 type FavoriteItem = {
@@ -16,6 +18,7 @@ type FavoriteItem = {
 };
 
 export function FavoritesPage() {
+  const { addItem } = useCart();
   const [items, setItems] = useState<FavoriteItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -71,12 +74,25 @@ export function FavoritesPage() {
             restaurantName={item.dealId.restaurantName}
             description={item.dealId.description}
           >
-            <button
-              onClick={() => removeFavorite(item.dealId._id, item._id)}
-              className="mt-3 rounded border px-3 py-1 text-xs font-medium text-rose-700 hover:bg-rose-50"
-            >
-              Remove
-            </button>
+            <div className="mt-3 flex gap-2">
+              <button
+                onClick={() => addItem({
+                  dealId: item.dealId._id,
+                  title: item.dealId.title,
+                  restaurantName: item.dealId.restaurantName,
+                  price: item.dealId.price ?? 0,
+                })}
+                className="rounded bg-emerald-600 px-3 py-1 text-xs font-medium text-white hover:bg-emerald-500"
+              >
+                Add to Cart
+              </button>
+              <button
+                onClick={() => removeFavorite(item.dealId._id, item._id)}
+                className="rounded border px-3 py-1 text-xs font-medium text-rose-700 hover:bg-rose-50"
+              >
+                Remove
+              </button>
+            </div>
           </DealCard>
         ))}
       </div>
