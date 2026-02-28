@@ -37,6 +37,7 @@ export function PortalPage() {
   const [dealType, setDealType] = useState<DealType>("Lunch");
   const [discountType, setDiscountType] = useState<DiscountType>("percent");
   const [value, setValue] = useState(20);
+  const [price, setPrice] = useState<number | "">("");
 
   // Inline edit state — null means not editing
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -69,12 +70,14 @@ export function PortalPage() {
         dealType,
         discountType,
         value: Number(value),
+        price: price !== "" ? Number(price) : undefined,
       };
       const created = await apiPost<OwnerDeal>("/api/owner/deals", payload);
       setItems((prev) => [created, ...prev]);
       setTitle("");
       setDescription("");
       setValue(20);
+      setPrice("");
       setSuccess("Draft created.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Create failed");
@@ -196,7 +199,7 @@ export function PortalPage() {
             </select>
           </div>
           <div className="w-28">
-            <label className="block text-xs font-medium text-slate-600 mb-1">Value</label>
+            <label className="block text-xs font-medium text-slate-600 mb-1">Discount value</label>
             <input
               type="number"
               value={value}
@@ -204,6 +207,18 @@ export function PortalPage() {
               className="w-full rounded border px-3 py-2 text-sm"
               min={1}
               required
+            />
+          </div>
+          <div className="w-28">
+            <label className="block text-xs font-medium text-slate-600 mb-1">Price ($)</label>
+            <input
+              type="number"
+              value={price}
+              onChange={(e) => setPrice(e.target.value === "" ? "" : Number(e.target.value))}
+              placeholder="0.00"
+              className="w-full rounded border px-3 py-2 text-sm"
+              min={0}
+              step={0.01}
             />
           </div>
         </div>
