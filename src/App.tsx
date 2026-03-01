@@ -152,6 +152,20 @@ function App() {
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>
+
+      {/* Footer */}
+      <footer className="mt-12 border-t bg-white text-xs text-slate-400">
+        <div className="mx-auto flex max-w-5xl flex-col items-center gap-2 px-4 py-6 sm:flex-row sm:justify-between">
+          <span>© {new Date().getFullYear()} Restaurant Deals</span>
+          <nav className="flex gap-4">
+            <a href="/deals" className="hover:text-slate-600">Deals</a>
+            <a href="/favorites" className="hover:text-slate-600">Favorites</a>
+            <a href="/register" className="hover:text-slate-600">Join</a>
+          </nav>
+          <span>Built with MERN + TypeScript</span>
+        </div>
+      </footer>
+
       {role && <ChatWidget />}
     </div>
   )
