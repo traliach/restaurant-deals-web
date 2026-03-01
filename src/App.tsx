@@ -160,7 +160,7 @@ function App() {
           <nav className="flex gap-4">
             <a href="/deals" className="hover:text-slate-600">Deals</a>
             <a href="/favorites" className="hover:text-slate-600">Favorites</a>
-            <a href="/register" className="hover:text-slate-600">Join</a>
+            <a href="/register" className="hover:text-slate-600">Register</a>
           </nav>
           <span>Built with MERN + TypeScript</span>
         </div>

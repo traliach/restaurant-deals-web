@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { apiGet, apiPost } from "../lib/api";
 
@@ -19,6 +19,7 @@ type Deal = {
 
 export function DealDetailsPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { addItem } = useCart();
   const [deal, setDeal] = useState<Deal | null>(null);
   const [loading, setLoading] = useState(true);
@@ -72,6 +73,12 @@ export function DealDetailsPage() {
 
   return (
     <section className="mx-auto max-w-2xl">
+      <button
+        onClick={() => navigate(-1)}
+        className="mb-4 flex items-center gap-1 text-sm text-slate-500 hover:text-indigo-600"
+      >
+        ← Back
+      </button>
       {/* Header */}
       <div className="rounded-xl border bg-white shadow-sm overflow-hidden">
         {deal.imageUrl && (
