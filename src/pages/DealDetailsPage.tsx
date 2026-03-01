@@ -7,6 +7,8 @@ type Deal = {
   _id: string;
   title: string;
   restaurantName: string;
+  restaurantAddress?: string;
+  restaurantCity?: string;
   description: string;
   dealType?: string;
   discountType?: string;
@@ -90,6 +92,21 @@ export function DealDetailsPage() {
         </div>
 
         <p className="mt-1 text-base font-medium text-slate-600">{deal.restaurantName}</p>
+
+        {(deal.restaurantAddress || deal.restaurantCity) && (
+          <div className="mt-1 flex items-center gap-2 text-sm text-slate-500">
+            <span>📍</span>
+            <span>{deal.restaurantAddress ?? deal.restaurantCity}</span>
+            <a
+              href={`https://maps.google.com/?q=${encodeURIComponent(deal.restaurantAddress ?? deal.restaurantCity ?? "")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-indigo-600 hover:underline"
+            >
+              Get Directions
+            </a>
+          </div>
+        )}
 
         <p className="mt-4 text-slate-700 leading-relaxed">{deal.description}</p>
 
