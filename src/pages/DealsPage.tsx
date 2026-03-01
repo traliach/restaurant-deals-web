@@ -6,6 +6,7 @@ type Deal = {
   _id: string;
   title: string;
   restaurantName: string;
+  restaurantCity?: string;
   description: string;
   dealType?: string;
   discountType?: string;
@@ -21,6 +22,8 @@ type DealsResponse = {
 
 type DealTypeFilter = "" | "Lunch" | "Carryout" | "Delivery" | "Other";
 type SortOption = "newest" | "value";
+
+const CITIES = ["Newark", "Jersey City", "New York", "Brooklyn", "Hoboken", "Montclair"];
 
 // Delays API calls until the user stops typing for 300ms.
 function useDebounce(value: string, ms = 300) {
@@ -41,10 +44,16 @@ export function DealsPage() {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search);
   const [dealType, setDealType] = useState<DealTypeFilter>("");
+  const [city, setCity] = useState("");
   const [sort, setSort] = useState<SortOption>("newest");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
+
+  function handleCityChange(value: string) {
+    setCity(value);
+    setPage(1);
+  }
 
   const loadDeals = useCallback(async () => {
     setLoading(true);
@@ -55,6 +64,7 @@ export function DealsPage() {
       params.set("limit", "9");
       if (debouncedSearch.trim()) params.set("q", debouncedSearch.trim());
       if (dealType) params.set("dealType", dealType);
+      if (city) params.set("city", city);
       if (sort === "value") params.set("sort", "value");
 
       const data = await apiGet<DealsResponse>(`/api/deals?${params}`);
@@ -66,7 +76,7 @@ export function DealsPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, debouncedSearch, dealType, sort]);
+  }, [page, debouncedSearch, dealType, city, sort]);
 
   useEffect(() => {
     loadDeals();
@@ -120,6 +130,17 @@ export function DealsPage() {
           </div>
         </div>
         <div>
+          <label className="block text-xs font-medium text-slate-600 mb-1">City</label>
+          <select
+            value={city}
+            onChange={(e) => handleCityChange(e.target.value)}
+            className="rounded border px-3 py-2 text-sm"
+          >
+            <option value="">All cities</option>
+            {CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
+          </select>
+        </div>
+        <div>
           <label className="block text-xs font-medium text-slate-600 mb-1">Type</label>
           <select
             value={dealType}
@@ -170,6 +191,7 @@ export function DealsPage() {
                 id={deal._id}
                 title={deal.title}
                 restaurantName={deal.restaurantName}
+                restaurantCity={deal.restaurantCity}
                 description={deal.description}
                 dealType={deal.dealType}
                 discountType={deal.discountType}
