@@ -6,6 +6,7 @@ type DealCardProps = {
   id: string;
   title: string;
   restaurantName: string;
+  restaurantCity?: string;
   description: string;
   dealType?: string;
   discountType?: string;
@@ -21,7 +22,7 @@ function formatDiscount(discountType?: string, value?: number) {
   return discountType;
 }
 
-export function DealCard({ id, title, restaurantName, description, dealType, discountType, value, children }: DealCardProps) {
+export function DealCard({ id, title, restaurantName, restaurantCity, description, dealType, discountType, value, children }: DealCardProps) {
   const discount = formatDiscount(discountType, value);
 
   return (
@@ -37,7 +38,10 @@ export function DealCard({ id, title, restaurantName, description, dealType, dis
           </span>
         ) : null}
       </div>
-      <p className="mt-1 text-sm text-slate-600">{restaurantName}</p>
+      <p className="mt-1 text-sm text-slate-600">
+        {restaurantName}
+        {restaurantCity && <span className="text-slate-400"> · {restaurantCity}</span>}
+      </p>
       <p className="mt-2 text-sm text-slate-700 line-clamp-2">{description}</p>
       {discount ? (
         <p className="mt-auto pt-3 text-sm font-semibold text-emerald-700">{discount}</p>
