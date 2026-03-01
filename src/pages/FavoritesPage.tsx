@@ -8,6 +8,7 @@ type FavoriteDeal = {
   _id: string;
   title: string;
   restaurantName: string;
+  restaurantCity?: string;
   description: string;
   price?: number;
 };
@@ -72,6 +73,7 @@ export function FavoritesPage() {
             id={item.dealId._id}
             title={item.dealId.title}
             restaurantName={item.dealId.restaurantName}
+            restaurantCity={item.dealId.restaurantCity}
             description={item.dealId.description}
           >
             <div className="mt-3 flex gap-2">

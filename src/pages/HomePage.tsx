@@ -8,6 +8,7 @@ type Deal = {
   _id: string;
   title: string;
   restaurantName: string;
+  restaurantCity?: string;
   description: string;
   dealType?: string;
   discountType?: string;
@@ -94,6 +95,7 @@ export function HomePage() {
                 id={deal._id}
                 title={deal.title}
                 restaurantName={deal.restaurantName}
+                restaurantCity={deal.restaurantCity}
                 description={deal.description}
                 dealType={deal.dealType}
                 discountType={deal.discountType}
