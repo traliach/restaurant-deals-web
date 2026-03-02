@@ -10,6 +10,8 @@ type FavoriteDeal = {
   restaurantName: string;
   restaurantCity?: string;
   description: string;
+  discountType?: string;
+  value?: number;
   price?: number;
 };
 
@@ -75,6 +77,9 @@ export function FavoritesPage() {
             restaurantName={item.dealId.restaurantName}
             restaurantCity={item.dealId.restaurantCity}
             description={item.dealId.description}
+            discountType={item.dealId.discountType}
+            value={item.dealId.value}
+            price={item.dealId.price}
           >
             <div className="mt-3 flex gap-2">
               <button

@@ -11,6 +11,7 @@ type Deal = {
   dealType?: string;
   discountType?: string;
   value?: number;
+  price?: number;
 };
 
 type DealsResponse = {
@@ -216,6 +217,7 @@ export function DealsPage() {
                 dealType={deal.dealType}
                 discountType={deal.discountType}
                 value={deal.value}
+                price={deal.price}
               />
             ))}
           </div>
