@@ -21,7 +21,7 @@ type DealsResponse = {
 };
 
 type DealTypeFilter = "" | "Lunch" | "Carryout" | "Delivery" | "Other";
-type SourceFilter = "" | "seed" | "foursquare";
+type SourceFilter = "" | "seed" | "yelp";
 type SortOption = "newest" | "value";
 
 const CITIES = ["Newark", "Jersey City", "New York", "Brooklyn", "Hoboken", "Montclair"];
@@ -157,7 +157,7 @@ export function DealsPage() {
           >
             <option value="">All sources</option>
             <option value="seed">Demo</option>
-            <option value="foursquare">Real (Foursquare)</option>
+            <option value="yelp">Real (Yelp)</option>
           </select>
         </div>
         <div>

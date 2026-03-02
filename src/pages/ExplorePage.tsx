@@ -3,21 +3,34 @@ import { useNavigate } from "react-router-dom";
 import { apiGet } from "../lib/api";
 
 type Place = {
-  fsq_id: string;
+  id: string;
   name: string;
   address: string;
+  city: string;
   category: string;
+  rating: number | null;
+  imageUrl: string | null;
+  website: string | null;
+  phone: string | null;
 };
 
-// Coordinates match the cities seeded in enrich-foursquare.ts.
-const CITY_LL: Record<string, string> = {
-  "New York":    "40.7580,-73.9855",
-  "Newark":      "40.7357,-74.1724",
-  "Jersey City": "40.7178,-74.0431",
-  "Brooklyn":    "40.6782,-73.9442",
-  "Hoboken":     "40.7440,-74.0324",
-  "Montclair":   "40.8259,-74.2090",
-};
+const CITIES = ["New York", "Newark", "Jersey City", "Brooklyn", "Hoboken", "Montclair"];
+
+function StarRating({ rating }: { rating: number | null }) {
+  if (!rating) return null;
+  const full = Math.floor(rating);
+  const half = rating % 1 >= 0.5;
+  return (
+    <span className="flex items-center gap-0.5 text-amber-400 text-xs">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <span key={i}>
+          {i < full ? "★" : i === full && half ? "½" : "☆"}
+        </span>
+      ))}
+      <span className="ml-1 text-slate-500">{rating}/5</span>
+    </span>
+  );
+}
 
 export function ExplorePage() {
   const navigate = useNavigate();
@@ -37,7 +50,8 @@ export function ExplorePage() {
     setSearched(true);
 
     try {
-      const params = new URLSearchParams({ query: query.trim(), ll: CITY_LL[city], limit: "10" });
+      // Yelp uses location text — pass city name as "near"
+      const params = new URLSearchParams({ query: query.trim(), near: `${city}, NJ`, limit: "10" });
 
       const data = await apiGet<Place[]>(`/api/external/places?${params.toString()}`);
       setPlaces(data);
@@ -50,9 +64,8 @@ export function ExplorePage() {
   }
 
   function useRestaurant(place: Place) {
-    // Pass restaurant info to portal via URL state.
     navigate("/portal", {
-      state: { prefill: { restaurantName: place.name, foursquareId: place.fsq_id } },
+      state: { prefill: { restaurantName: place.name, yelpId: place.id } },
     });
   }
 
@@ -60,7 +73,7 @@ export function ExplorePage() {
     <section>
       <h1 className="mb-2 text-2xl font-semibold">Explore Restaurants</h1>
       <p className="mb-6 text-sm text-slate-500">
-        Search real restaurants powered by Foursquare. Use one to create a deal.
+        Search real restaurants powered by Yelp. Use one to create a deal.
       </p>
 
       <form onSubmit={handleSearch} className="mb-6 flex flex-col gap-3 sm:flex-row">
@@ -76,7 +89,7 @@ export function ExplorePage() {
           onChange={(e) => setCity(e.target.value)}
           className="w-full rounded border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-400 sm:w-48"
         >
-          {Object.keys(CITY_LL).map((c) => (
+          {CITIES.map((c) => (
             <option key={c} value={c}>{c}</option>
           ))}
         </select>
@@ -97,18 +110,24 @@ export function ExplorePage() {
 
       <ul className="grid gap-4 sm:grid-cols-2">
         {places.map((place) => (
-          <li key={place.fsq_id} className="rounded-lg border bg-white p-4">
-            <p className="font-semibold">{place.name}</p>
-            <p className="mt-0.5 text-sm text-slate-500">{place.category}</p>
-            {place.address && (
-              <p className="mt-1 text-xs text-slate-400">{place.address}</p>
+          <li key={place.id} className="rounded-lg border bg-white overflow-hidden">
+            {place.imageUrl && (
+              <img src={place.imageUrl} alt={place.name} className="h-36 w-full object-cover" />
             )}
-            <button
-              onClick={() => useRestaurant(place)}
-              className="mt-3 rounded bg-emerald-600 px-3 py-1 text-xs font-medium text-white hover:bg-emerald-500"
-            >
-              Use this Restaurant
-            </button>
+            <div className="p-4">
+              <p className="font-semibold">{place.name}</p>
+              <p className="mt-0.5 text-sm text-slate-500">{place.category}</p>
+              <StarRating rating={place.rating} />
+              {place.address && (
+                <p className="mt-1 text-xs text-slate-400">{place.address}</p>
+              )}
+              <button
+                onClick={() => useRestaurant(place)}
+                className="mt-3 rounded bg-emerald-600 px-3 py-1 text-xs font-medium text-white hover:bg-emerald-500"
+              >
+                Use this Restaurant
+              </button>
+            </div>
           </li>
         ))}
       </ul>
