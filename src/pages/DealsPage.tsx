@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import { apiGet } from "../lib/api";
 import { DealCard } from "../components/DealCard";
 
@@ -39,16 +40,20 @@ function useDebounce(value: string, ms = 300) {
 }
 
 export function DealsPage() {
+  const [searchParams] = useSearchParams();
+
   const [deals, setDeals] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const [search, setSearch] = useState("");
+  // Initialise from URL params so ChatWidget navigation pre-fills filters.
+  const [search, setSearch] = useState(searchParams.get("q") ?? "");
   const debouncedSearch = useDebounce(search);
-  const [dealType, setDealType] = useState<DealTypeFilter>("");
-  const [city, setCity] = useState("");
-  const [source, setSource] = useState<SourceFilter>("");
-  const [sort, setSort] = useState<SortOption>("newest");
+  const [dealType, setDealType] = useState<DealTypeFilter>((searchParams.get("dealType") as DealTypeFilter) ?? "");
+  const [city, setCity] = useState(searchParams.get("city") ?? "");
+  const [source, setSource] = useState<SourceFilter>((searchParams.get("source") as SourceFilter) ?? "");
+  const [maxPrice, setMaxPrice] = useState<string>(searchParams.get("maxPrice") ?? "");
+  const [sort, setSort] = useState<SortOption>((searchParams.get("sort") as SortOption) ?? "newest");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
@@ -74,6 +79,7 @@ export function DealsPage() {
       if (dealType) params.set("dealType", dealType);
       if (city) params.set("city", city);
       if (source) params.set("source", source);
+      if (maxPrice) params.set("maxPrice", maxPrice);
       if (sort === "value") params.set("sort", "value");
 
       const data = await apiGet<DealsResponse>(`/api/deals?${params}`);
@@ -85,7 +91,7 @@ export function DealsPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, debouncedSearch, dealType, city, source, sort]);
+  }, [page, debouncedSearch, dealType, city, source, maxPrice, sort]);
 
   useEffect(() => {
     loadDeals();
@@ -137,6 +143,18 @@ export function DealsPage() {
               </button>
             ) : null}
           </div>
+        </div>
+        <div className="w-28">
+          <label className="block text-xs font-medium text-slate-600 mb-1">Max price ($)</label>
+          <input
+            type="number"
+            value={maxPrice}
+            onChange={(e) => { setMaxPrice(e.target.value); setPage(1); }}
+            placeholder="Any"
+            min={0}
+            step={0.01}
+            className="w-full rounded border px-3 py-2 text-sm"
+          />
         </div>
         <div>
           <label className="block text-xs font-medium text-slate-600 mb-1">City</label>

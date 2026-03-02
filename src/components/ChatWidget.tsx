@@ -1,4 +1,5 @@
 import { FormEvent, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { apiPost } from "../lib/api";
 
 type Message = {
@@ -6,7 +7,22 @@ type Message = {
   text: string;
 };
 
+type BotResponse = {
+  reply: string;
+  action: {
+    type: "SET_FILTERS" | "NONE";
+    payload: {
+      maxPrice?: number;
+      city?: string;
+      dealType?: string;
+      sort?: string;
+      source?: string;
+    };
+  };
+};
+
 export function ChatWidget() {
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -23,14 +39,29 @@ export function ChatWidget() {
     setLoading(true);
 
     try {
-      const { action } = await apiPost<{ action: string }>("/api/bot/chat", {
-        message: text,
-      });
-      setMessages((prev) => [...prev, { role: "bot", text: action }]);
+      const data = await apiPost<BotResponse>("/api/bot/chat", { message: text });
+
+      setMessages((prev) => [...prev, { role: "bot", text: data.reply }]);
+
+      // Apply filters by navigating to /deals with query params.
+      if (data.action.type === "SET_FILTERS") {
+        const params = new URLSearchParams();
+        const p = data.action.payload;
+        if (p.maxPrice != null) params.set("maxPrice", String(p.maxPrice));
+        if (p.city) params.set("city", p.city);
+        if (p.dealType) params.set("dealType", p.dealType);
+        if (p.sort) params.set("sort", p.sort);
+        if (p.source) params.set("source", p.source);
+
+        setTimeout(() => {
+          navigate(`/deals?${params.toString()}`);
+          setOpen(false);
+        }, 800);
+      }
     } catch {
       setMessages((prev) => [
         ...prev,
-        { role: "bot", text: "Sorry, I couldn't process that right now." },
+        { role: "bot", text: "I couldn't reach the assistant right now. Try again." },
       ]);
     } finally {
       setLoading(false);
@@ -42,22 +73,15 @@ export function ChatWidget() {
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
       {open && (
         <div className="flex h-96 w-80 flex-col rounded-xl border bg-white shadow-xl">
-          {/* Header */}
           <div className="flex items-center justify-between rounded-t-xl bg-indigo-600 px-4 py-2">
             <span className="text-sm font-semibold text-white">Deals Assistant</span>
-            <button
-              onClick={() => setOpen(false)}
-              className="text-indigo-200 hover:text-white"
-            >
-              ✕
-            </button>
+            <button onClick={() => setOpen(false)} className="text-indigo-200 hover:text-white">✕</button>
           </div>
 
-          {/* Messages */}
           <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2">
             {messages.length === 0 && (
               <p className="text-center text-xs text-slate-400 pt-4">
-                Ask me anything about deals or orders!
+                Try: "I have $10" or "Show Newark deals"
               </p>
             )}
             {messages.map((msg, i) => (
@@ -80,7 +104,6 @@ export function ChatWidget() {
             <div ref={bottomRef} />
           </div>
 
-          {/* Input */}
           <form onSubmit={handleSend} className="flex gap-2 border-t p-2">
             <input
               value={input}
@@ -99,7 +122,6 @@ export function ChatWidget() {
         </div>
       )}
 
-      {/* Floating toggle button */}
       <button
         onClick={() => setOpen((v) => !v)}
         className="rounded-full bg-indigo-600 p-3 text-xl text-white shadow-lg hover:bg-indigo-500"
