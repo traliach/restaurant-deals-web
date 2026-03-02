@@ -13,8 +13,8 @@ React frontend for a moderated restaurant deals marketplace. Customers browse an
 - Stripe checkout with CardElement for secure payment
 - Order history page with status badges
 - Notifications bell with unread count and mark-read
-- Floating AI chat widget (powered by OpenAI via backend)
-- Explore page: search real restaurants via Foursquare, pre-fill portal
+- Floating AI chat widget (Gemini) — type budget or city and filters apply automatically
+- Explore page: search real restaurants via Yelp, pre-fill portal
 - Register / login with JWT stored in context
 - Responsive layout with mobile hamburger menu
 - 404 catch-all page
@@ -108,3 +108,4 @@ src/
 ## Related
 
 - Backend repo: [restaurant-deals-api](https://github.com/traliach/restaurant-deals-api)
+image.png
