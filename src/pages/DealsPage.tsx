@@ -58,6 +58,17 @@ export function DealsPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
 
+  // Sync filter state when URL params change (e.g. from ChatWidget navigation).
+  useEffect(() => {
+    setSearch(searchParams.get("q") ?? "");
+    setDealType((searchParams.get("dealType") as DealTypeFilter) ?? "");
+    setCity(searchParams.get("city") ?? "");
+    setSource((searchParams.get("source") as SourceFilter) ?? "");
+    setMaxPrice(searchParams.get("maxPrice") ?? "");
+    setSort((searchParams.get("sort") as SortOption) ?? "newest");
+    setPage(1);
+  }, [searchParams]);
+
   function handleCityChange(value: string) {
     setCity(value);
     setPage(1);

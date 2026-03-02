@@ -11,6 +11,7 @@ type DealCardProps = {
   dealType?: string;
   discountType?: string;
   value?: number;
+  price?: number;
   children?: ReactNode;
 };
 
@@ -22,7 +23,7 @@ function formatDiscount(discountType?: string, value?: number) {
   return discountType;
 }
 
-export function DealCard({ id, title, restaurantName, restaurantCity, description, dealType, discountType, value, children }: DealCardProps) {
+export function DealCard({ id, title, restaurantName, restaurantCity, description, dealType, discountType, value, price, children }: DealCardProps) {
   const discount = formatDiscount(discountType, value);
 
   return (
@@ -43,9 +44,14 @@ export function DealCard({ id, title, restaurantName, restaurantCity, descriptio
         {restaurantCity && <span className="text-slate-400"> · {restaurantCity}</span>}
       </p>
       <p className="mt-2 text-sm text-slate-700 line-clamp-2">{description}</p>
-      {discount ? (
-        <p className="mt-auto pt-3 text-sm font-semibold text-emerald-700">{discount}</p>
-      ) : null}
+      <div className="mt-auto pt-3 flex items-center justify-between gap-2">
+        {discount ? (
+          <span className="text-sm font-semibold text-emerald-700">{discount}</span>
+        ) : <span />}
+        {price != null && price > 0 ? (
+          <span className="text-sm font-bold text-slate-800">${price.toFixed(2)}</span>
+        ) : null}
+      </div>
       {/* Action buttons — stop propagation so they don't trigger the card link */}
       {children && (
         <div onClick={(e) => e.preventDefault()}>{children}</div>
