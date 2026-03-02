@@ -21,6 +21,7 @@ type DealsResponse = {
 };
 
 type DealTypeFilter = "" | "Lunch" | "Carryout" | "Delivery" | "Other";
+type SourceFilter = "" | "seed" | "foursquare";
 type SortOption = "newest" | "value";
 
 const CITIES = ["Newark", "Jersey City", "New York", "Brooklyn", "Hoboken", "Montclair"];
@@ -45,6 +46,7 @@ export function DealsPage() {
   const debouncedSearch = useDebounce(search);
   const [dealType, setDealType] = useState<DealTypeFilter>("");
   const [city, setCity] = useState("");
+  const [source, setSource] = useState<SourceFilter>("");
   const [sort, setSort] = useState<SortOption>("newest");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -52,6 +54,11 @@ export function DealsPage() {
 
   function handleCityChange(value: string) {
     setCity(value);
+    setPage(1);
+  }
+
+  function handleSourceChange(value: SourceFilter) {
+    setSource(value);
     setPage(1);
   }
 
@@ -65,6 +72,7 @@ export function DealsPage() {
       if (debouncedSearch.trim()) params.set("q", debouncedSearch.trim());
       if (dealType) params.set("dealType", dealType);
       if (city) params.set("city", city);
+      if (source) params.set("source", source);
       if (sort === "value") params.set("sort", "value");
 
       const data = await apiGet<DealsResponse>(`/api/deals?${params}`);
@@ -76,7 +84,7 @@ export function DealsPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, debouncedSearch, dealType, city, sort]);
+  }, [page, debouncedSearch, dealType, city, source, sort]);
 
   useEffect(() => {
     loadDeals();
@@ -138,6 +146,18 @@ export function DealsPage() {
           >
             <option value="">All cities</option>
             {CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-slate-600 mb-1">Data</label>
+          <select
+            value={source}
+            onChange={(e) => handleSourceChange(e.target.value as SourceFilter)}
+            className="rounded border px-3 py-2 text-sm"
+          >
+            <option value="">All sources</option>
+            <option value="seed">Demo</option>
+            <option value="foursquare">Real (Foursquare)</option>
           </select>
         </div>
         <div>
