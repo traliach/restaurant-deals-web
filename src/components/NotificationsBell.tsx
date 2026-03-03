@@ -52,6 +52,26 @@ export function NotificationsBell() {
     } catch {}
   }
 
+  function typeLabel(type: string): string {
+    switch (type) {
+      case "deal_submitted": return "New deal to review";
+      case "deal_approved": return "Deal approved";
+      case "deal_rejected": return "Deal rejected";
+      case "order_status": return "Order update";
+      default: return type;
+    }
+  }
+
+  function typeBadgeColor(type: string): string {
+    switch (type) {
+      case "deal_submitted": return "bg-amber-100 text-amber-700";
+      case "deal_approved": return "bg-emerald-100 text-emerald-700";
+      case "deal_rejected": return "bg-red-100 text-red-700";
+      case "order_status": return "bg-blue-100 text-blue-700";
+      default: return "bg-slate-100 text-slate-600";
+    }
+  }
+
   return (
     <div ref={ref} className="relative">
       <button
@@ -92,6 +112,9 @@ export function NotificationsBell() {
                   key={n._id}
                   className={`border-b px-4 py-3 text-sm ${n.read ? "text-slate-400" : "font-medium text-slate-800"}`}
                 >
+                  <span className={`mb-1 inline-block rounded-full px-2 py-0.5 text-xs font-medium ${typeBadgeColor(n.type)}`}>
+                    {typeLabel(n.type)}
+                  </span>
                   <p>{n.message}</p>
                   <div className="mt-1 flex items-center justify-between">
                     <span className="text-xs text-slate-400">

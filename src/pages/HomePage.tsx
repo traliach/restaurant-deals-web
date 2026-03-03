@@ -3,17 +3,24 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { apiGet } from "../lib/api";
 import { DealCard } from "../components/DealCard";
+import { DealDetailsDrawer, type DrawerDeal } from "../components/DealDetailsDrawer";
 
 type Deal = {
   _id: string;
   title: string;
   restaurantName: string;
   restaurantCity?: string;
+  restaurantAddress?: string;
   description: string;
   dealType?: string;
   discountType?: string;
   value?: number;
   price?: number;
+  imageUrl?: string;
+  cuisineType?: string;
+  dietaryTags?: string[];
+  yelpRating?: number;
+  endAt?: string;
 };
 
 type DealsResponse = {
@@ -24,6 +31,7 @@ export function HomePage() {
   const { role } = useAuth();
   const [featured, setFeatured] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
+  const [drawerDeal, setDrawerDeal] = useState<DrawerDeal | null>(null);
 
   useEffect(() => {
     async function loadFeatured() {
@@ -102,6 +110,11 @@ export function HomePage() {
                 discountType={deal.discountType}
                 value={deal.value}
                 price={deal.price}
+                cuisineType={deal.cuisineType}
+                dietaryTags={deal.dietaryTags}
+                yelpRating={deal.yelpRating}
+                endAt={deal.endAt}
+                onOpenDrawer={() => setDrawerDeal(deal)}
               />
             ))}
           </div>
@@ -117,6 +130,8 @@ export function HomePage() {
           </div>
         ) : null}
       </div>
+
+      <DealDetailsDrawer deal={drawerDeal} onClose={() => setDrawerDeal(null)} />
     </section>
   );
 }

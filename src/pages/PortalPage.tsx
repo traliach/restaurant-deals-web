@@ -5,6 +5,10 @@ import { apiDelete, apiGet, apiPost, apiPut } from "../lib/api";
 
 type DealType = "Lunch" | "Carryout" | "Delivery" | "Other";
 type DiscountType = "percent" | "amount" | "bogo" | "other";
+type CuisineType = "French" | "Italian" | "Spanish" | "American" | "Asian" | "Mexican" | "Mediterranean" | "Other" | "";
+
+const CUISINE_TYPES: CuisineType[] = ["French", "Italian", "Spanish", "American", "Asian", "Mexican", "Mediterranean", "Other"];
+const DIETARY_OPTIONS = ["Vegan", "Vegetarian", "Gluten-Free", "Halal", "Keto", "Dairy-Free"];
 
 type OrderStatus = "Placed" | "Preparing" | "Ready" | "Completed";
 
@@ -57,6 +61,13 @@ export function PortalPage() {
   const [discountType, setDiscountType] = useState<DiscountType>("percent");
   const [value, setValue] = useState(20);
   const [price, setPrice] = useState<number | "">("");
+  const [cuisineType, setCuisineType] = useState<CuisineType>("");
+  const [dietaryTags, setDietaryTags] = useState<string[]>([]);
+  const [endAt, setEndAt] = useState("");
+
+  function toggleDietaryTag(tag: string) {
+    setDietaryTags((prev) => prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]);
+  }
 
   // Inline edit state — null means not editing
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -90,6 +101,9 @@ export function PortalPage() {
         discountType,
         value: Number(value),
         price: price !== "" ? Number(price) : undefined,
+        cuisineType: cuisineType || undefined,
+        dietaryTags,
+        endAt: endAt || undefined,
       };
       const created = await apiPost<OwnerDeal>("/api/owner/deals", payload);
       setItems((prev) => [created, ...prev]);
@@ -97,6 +111,9 @@ export function PortalPage() {
       setDescription("");
       setValue(20);
       setPrice("");
+      setCuisineType("");
+      setDietaryTags([]);
+      setEndAt("");
       setSuccess("Draft created.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Create failed");
@@ -330,6 +347,45 @@ export function PortalPage() {
               min={0}
               step={0.01}
             />
+          </div>
+          <div className="flex-1 min-w-[140px]">
+            <label className="block text-xs font-medium text-slate-600 mb-1">Cuisine type</label>
+            <select
+              value={cuisineType}
+              onChange={(e) => setCuisineType(e.target.value as CuisineType)}
+              className="w-full rounded border px-3 py-2 text-sm"
+            >
+              <option value="">None</option>
+              {CUISINE_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+            </select>
+          </div>
+          <div className="flex-1 min-w-[160px]">
+            <label className="block text-xs font-medium text-slate-600 mb-1">Expiry date</label>
+            <input
+              type="datetime-local"
+              value={endAt}
+              onChange={(e) => setEndAt(e.target.value)}
+              className="w-full rounded border px-3 py-2 text-sm"
+            />
+          </div>
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-slate-600 mb-2">Dietary tags</label>
+          <div className="flex flex-wrap gap-2">
+            {DIETARY_OPTIONS.map((tag) => (
+              <button
+                key={tag}
+                type="button"
+                onClick={() => toggleDietaryTag(tag)}
+                className={`rounded-full border px-3 py-0.5 text-xs font-medium transition-colors ${
+                  dietaryTags.includes(tag)
+                    ? "border-emerald-500 bg-emerald-500 text-white"
+                    : "border-slate-200 text-slate-600 hover:border-emerald-400"
+                }`}
+              >
+                {tag}
+              </button>
+            ))}
           </div>
         </div>
         <button className="rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500">

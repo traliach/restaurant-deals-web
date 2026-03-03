@@ -9,75 +9,60 @@ function authHeaders() {
   return headers;
 }
 
-export async function apiGet<T>(path: string): Promise<T> {
-  const response = await fetch(`${env.apiUrl}${path}`, {
-    headers: { ...authHeaders() },
-  });
+// Dispatch a global event so AuthContext can clear state on 401.
+function handleUnauthorized(status: number) {
+  if (status === 401) {
+    window.dispatchEvent(new Event("auth:expired"));
+  }
+}
+
+async function handleResponse<T>(response: Response): Promise<T> {
   const json = await response.json();
+  if (response.status === 401) handleUnauthorized(401);
   if (!response.ok || !json?.ok) {
     throw new Error(json?.error || "Request failed");
   }
   return json.data as T;
+}
+
+export async function apiGet<T>(path: string): Promise<T> {
+  const response = await fetch(`${env.apiUrl}${path}`, {
+    headers: { ...authHeaders() },
+  });
+  return handleResponse<T>(response);
 }
 
 export async function apiPost<T>(path: string, body?: unknown): Promise<T> {
   const response = await fetch(`${env.apiUrl}${path}`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...authHeaders(),
-    },
+    headers: { "Content-Type": "application/json", ...authHeaders() },
     body: body ? JSON.stringify(body) : undefined,
   });
-  const json = await response.json();
-  if (!response.ok || !json?.ok) {
-    throw new Error(json?.error || "Request failed");
-  }
-  return json.data as T;
+  return handleResponse<T>(response);
 }
 
 export async function apiPut<T>(path: string, body?: unknown): Promise<T> {
   const response = await fetch(`${env.apiUrl}${path}`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      ...authHeaders(),
-    },
+    headers: { "Content-Type": "application/json", ...authHeaders() },
     body: body ? JSON.stringify(body) : undefined,
   });
-  const json = await response.json();
-  if (!response.ok || !json?.ok) {
-    throw new Error(json?.error || "Request failed");
-  }
-  return json.data as T;
+  return handleResponse<T>(response);
 }
 
 export async function apiPatch<T>(path: string, body?: unknown): Promise<T> {
   const response = await fetch(`${env.apiUrl}${path}`, {
     method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      ...authHeaders(),
-    },
+    headers: { "Content-Type": "application/json", ...authHeaders() },
     body: body ? JSON.stringify(body) : undefined,
   });
-  const json = await response.json();
-  if (!response.ok || !json?.ok) {
-    throw new Error(json?.error || "Request failed");
-  }
-  return json.data as T;
+  return handleResponse<T>(response);
 }
 
 export async function apiDelete<T>(path: string): Promise<T> {
   const response = await fetch(`${env.apiUrl}${path}`, {
     method: "DELETE",
-    headers: {
-      ...authHeaders(),
-    },
+    headers: { ...authHeaders() },
   });
-  const json = await response.json();
-  if (!response.ok || !json?.ok) {
-    throw new Error(json?.error || "Request failed");
-  }
-  return json.data as T;
+  return handleResponse<T>(response);
 }
