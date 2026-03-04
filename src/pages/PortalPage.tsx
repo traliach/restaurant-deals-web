@@ -221,7 +221,7 @@ export function PortalPage() {
           My Deals
         </button>
         <button
-          onClick={() => { setTab("orders"); if (orders.length === 0) loadOrders(); }}
+          onClick={() => { setTab("orders"); loadOrders(); }}
           className={`rounded px-4 py-1.5 text-sm font-medium ${tab === "orders" ? "bg-indigo-600 text-white" : "border text-slate-700 hover:bg-slate-100"}`}
         >
           Incoming Orders
