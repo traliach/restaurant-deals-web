@@ -5,17 +5,23 @@ React frontend for a moderated restaurant deals marketplace. Customers browse an
 ## Features
 
 - Role-aware navigation (customer, owner, admin)
-- Deals explorer with live search, city filter, type filter, price filter, sort, and pagination
-- Deal detail page with image, address, directions link, favorite toggle, and Add to Cart
+- Deals explorer with live search, city, type, cuisine, dietary tag filters, price range, sort, and pagination
+- Deal cards showing Yelp star rating (★), countdown timer, cuisine badge, and dietary tags
+- Clicking a deal card opens a right-side drawer with full details (no page navigation needed)
+- Deal detail page accessible directly via `/deals/:id` (for sharing/bookmarks)
 - Shopping cart with quantity controls and localStorage persistence (survives refresh)
-- Stripe checkout with CardElement for secure payment
+- Stripe checkout with CardElement for secure payment (test mode: `4242 4242 4242 4242`)
 - Order history page with status badges
-- Owner portal: create drafts, inline edit, submit for review, view incoming orders
-- Admin queue: approve/reject with inline reason form + AI bot audit tab
-- Notifications bell with unread count and mark-read
+- Owner portal: create drafts (with cuisine type, dietary tags, expiry), inline edit, submit for review, view incoming orders
+- Separate Admin layout with sidebar (Dashboard, Deal Queue, Users, Bot Audit)
+- Admin Dashboard: platform metrics (users, owners, restaurants, deal counts, most active owners table)
+- Admin Deal Queue: sortable table of all deals with detail drawer on row click
+- Admin User Management: searchable/filterable table with per-user delete (owners/customers only)
+- Notifications bell with unread count, mark-read, and deal-submitted type
 - Floating AI chat widget (Groq) — type budget or city, filters apply automatically
 - Explore page: search real restaurants via Yelp, pre-fill owner portal
-- Register / login with JWT stored in React Context
+- Auth token expiry detection — auto-logout on 401 via `auth:expired` custom event
+- Register / login with JWT stored in React Context + localStorage
 - Responsive layout with mobile hamburger menu
 - 404 catch-all page
 
@@ -57,20 +63,23 @@ Make sure the backend API is running first.
 
 ## Routes
 
-| Path          | Page              | Access        |
-|---------------|-------------------|---------------|
-| `/`           | Home              | Public        |
-| `/deals`      | Deals Explorer    | Public        |
-| `/deals/:id`  | Deal Details      | Public        |
-| `/favorites`  | Favorites         | Auth required |
-| `/cart`       | Cart              | Public        |
-| `/checkout`   | Checkout          | Auth required |
-| `/orders`     | Order History     | Auth required |
-| `/explore`    | Restaurant Search | Owner         |
-| `/portal`     | Owner Portal      | Owner / Admin |
-| `/admin`      | Admin Panel       | Admin only    |
-| `/login`      | Login             | Public        |
-| `/register`   | Register          | Public        |
+| Path                | Page                   | Access        |
+|---------------------|------------------------|---------------|
+| `/`                 | Home                   | Public        |
+| `/deals`            | Deals Explorer         | Public        |
+| `/deals/:id`        | Deal Details           | Public        |
+| `/favorites`        | Favorites              | Auth required |
+| `/cart`             | Cart                   | Public        |
+| `/checkout`         | Checkout               | Auth required |
+| `/orders`           | Order History          | Auth required |
+| `/explore`          | Restaurant Search      | Owner only    |
+| `/portal`           | Owner Portal           | Owner only    |
+| `/admin/dashboard`  | Admin Dashboard        | Admin only    |
+| `/admin/queue`      | Admin Deal Queue       | Admin only    |
+| `/admin/users`      | Admin User Management  | Admin only    |
+| `/admin/bot`        | Admin Bot Audit        | Admin only    |
+| `/login`            | Login                  | Public        |
+| `/register`         | Register               | Public        |
 
 ## Project Structure
 
@@ -86,12 +95,15 @@ src/
   components/
     RequireAuth.tsx          Auth route guard
     RequireRole.tsx          Role route guard
-    DealCard.tsx             Reusable deal card
-    NotificationsBell.tsx   Unread count + dropdown
+    DealCard.tsx             Reusable deal card (rating, countdown, cuisine, dietary tags)
+    DealDetailsDrawer.tsx    Right-side slide-in panel for deal details
+    AdminLayout.tsx          Admin sidebar layout (wraps all /admin/* routes)
+    AdminDealDrawer.tsx      Admin deal detail panel with approve/reject actions
+    NotificationsBell.tsx    Unread count + dropdown
     ChatWidget.tsx           Floating AI chat (Groq)
   pages/
-    HomePage.tsx             Hero + featured deals
-    DealsPage.tsx            Search / filter / paginate
+    HomePage.tsx             Hero + featured deals (with drawer)
+    DealsPage.tsx            Search / filter / paginate (with drawer)
     DealDetailsPage.tsx      Single deal + favorite + cart
     FavoritesPage.tsx        User favorites list
     CartPage.tsx             Cart with quantity controls
@@ -99,7 +111,10 @@ src/
     OrdersPage.tsx           Order history + status badges
     ExplorePage.tsx          Yelp restaurant search
     PortalPage.tsx           Owner deal management + orders
-    AdminPage.tsx            Admin review queue + bot audit
+    AdminDashboardPage.tsx   Platform metrics + most active owners
+    AdminQueuePage.tsx       Sortable deals table + detail drawer
+    AdminUsersPage.tsx       User table with search, filter, delete
+    AdminBotPage.tsx         AI bot interaction audit log
     LoginPage.tsx            Login form
     RegisterPage.tsx         Registration form + role select
     NotFoundPage.tsx         404 page
