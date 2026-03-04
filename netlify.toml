@@ -1,0 +1,12 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# React Router fix: without this, refreshing any route (e.g. /deals/123)
+# returns a 404 because Netlify tries to serve a real file at that path.
+# This rule rewrites all requests back to index.html so React Router
+# handles the routing client-side.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
