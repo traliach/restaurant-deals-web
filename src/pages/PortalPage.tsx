@@ -256,17 +256,18 @@ export function PortalPage() {
                 </ul>
                 <div className="mt-2 flex items-center justify-between border-t pt-2">
                   <span className="text-sm font-semibold">Total: ${order.total.toFixed(2)}</span>
-                  {order.status !== "Completed" && (
-                    <select
-                      value={order.status}
-                      onChange={(e) => updateOrderStatus(order._id, e.target.value as OrderStatus)}
-                      className="rounded border px-2 py-1 text-xs"
-                    >
-                      {ORDER_STATUSES.map((s) => (
-                        <option key={s} value={s}>{s}</option>
-                      ))}
-                    </select>
-                  )}
+                  {(() => {
+                    const nextStatus = ORDER_STATUSES[ORDER_STATUSES.indexOf(order.status) + 1];
+                    if (!nextStatus) return null;
+                    return (
+                      <button
+                        onClick={() => updateOrderStatus(order._id, nextStatus)}
+                        className="rounded bg-indigo-600 px-3 py-1 text-xs font-medium text-white hover:bg-indigo-500"
+                      >
+                        Mark as {nextStatus}
+                      </button>
+                    );
+                  })()}
                 </div>
               </li>
             ))}

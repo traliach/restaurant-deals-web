@@ -54,7 +54,7 @@ export function OrdersPage() {
                 {order.status}
               </span>
               <span className="text-xs text-slate-400">
-                {new Date(order.createdAt).toLocaleDateString()}
+                {new Date(order.createdAt).toLocaleString()}
               </span>
             </div>
             <ul className="space-y-1 text-sm text-slate-700">
