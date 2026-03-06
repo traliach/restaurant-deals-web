@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { logout } from "../store/authSlice";
+import { useAppDispatch } from "../store/hooks";
 import { NotificationsBell } from "./NotificationsBell";
 
 const NAV_ITEMS = [
@@ -10,11 +11,11 @@ const NAV_ITEMS = [
 ];
 
 export function AdminLayout() {
-  const { logout } = useAuth();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   function handleLogout() {
-    logout();
+    dispatch(logout());
     navigate("/login");
   }
 

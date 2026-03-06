@@ -2,9 +2,10 @@ import { CardElement, Elements, useElements, useStripe } from "@stripe/react-str
 import { loadStripe } from "@stripe/stripe-js";
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { useCart } from "../context/CartContext";
+import { clearCart } from "../store/cartSlice";
 import { env } from "../config/env";
 import { apiPost } from "../lib/api";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
 
 const stripePromise = loadStripe(env.stripePublishableKey);
 
@@ -12,7 +13,11 @@ function CheckoutForm() {
   const stripe = useStripe();
   const elements = useElements();
   const navigate = useNavigate();
-  const { items, total, clearCart } = useCart();
+  const dispatch = useAppDispatch();
+  const items = useAppSelector((state) => state.cart.items);
+  const total = useAppSelector((state) =>
+    state.cart.items.reduce((sum, item) => sum + item.price * item.qty, 0)
+  );
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -50,7 +55,7 @@ function CheckoutForm() {
         stripePaymentIntentId: result.paymentIntent?.id,
       });
 
-      clearCart();
+      dispatch(clearCart());
       navigate("/orders");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Checkout failed");

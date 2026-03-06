@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { NavLink, Route, Routes, useNavigate, Navigate } from 'react-router-dom'
-import { useAuth } from './context/AuthContext'
-import { useCart } from './context/CartContext'
+import { logout } from './store/authSlice'
+import { useAppDispatch, useAppSelector } from './store/hooks'
 import { HomePage } from './pages/HomePage'
 import { DealsPage } from './pages/DealsPage'
 import { DealDetailsPage } from './pages/DealDetailsPage'
@@ -26,12 +26,24 @@ import { RequireRole } from './components/RequireRole'
 
 function App() {
   const navigate = useNavigate()
-  const { role, logout } = useAuth()
-  const { count } = useCart()
+  const dispatch = useAppDispatch()
+  const role = useAppSelector((state) => state.auth.role)
+  const count = useAppSelector((state) =>
+    state.cart.items.reduce((sum, item) => sum + item.qty, 0)
+  )
   const [menuOpen, setMenuOpen] = useState(false)
 
+  useEffect(() => {
+    function handleExpired() {
+      dispatch(logout())
+    }
+
+    window.addEventListener('auth:expired', handleExpired)
+    return () => window.removeEventListener('auth:expired', handleExpired)
+  }, [dispatch])
+
   function handleLogout() {
-    logout()
+    dispatch(logout())
     setMenuOpen(false)
     navigate('/login')
   }

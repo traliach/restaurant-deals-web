@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useCart } from "../context/CartContext";
+import { addItem } from "../store/cartSlice";
+import { useAppDispatch } from "../store/hooks";
 import { apiGet, apiPost } from "../lib/api";
 
 type Deal = {
@@ -56,7 +57,7 @@ function useCountdown(endAt?: string) {
 export function DealDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { addItem } = useCart();
+  const dispatch = useAppDispatch();
   const [deal, setDeal] = useState<Deal | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -198,7 +199,7 @@ export function DealDetailsPage() {
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <button
                 onClick={() => {
-                  addItem({ dealId: deal._id, title: deal.title, restaurantName: deal.restaurantName, price: deal.price ?? 0 });
+                  dispatch(addItem({ dealId: deal._id, title: deal.title, restaurantName: deal.restaurantName, price: deal.price ?? 0 }));
                   setCartMsg("Added to cart!");
                   setTimeout(() => setCartMsg(""), 2000);
                 }}

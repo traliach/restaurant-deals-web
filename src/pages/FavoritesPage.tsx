@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { useCart } from "../context/CartContext";
+import { addItem } from "../store/cartSlice";
+import { useAppDispatch } from "../store/hooks";
 import { apiDelete, apiGet } from "../lib/api";
 import { DealCard } from "../components/DealCard";
 
@@ -21,7 +22,7 @@ type FavoriteItem = {
 };
 
 export function FavoritesPage() {
-  const { addItem } = useCart();
+  const dispatch = useAppDispatch();
   const [items, setItems] = useState<FavoriteItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -83,12 +84,12 @@ export function FavoritesPage() {
           >
             <div className="mt-3 flex gap-2">
               <button
-                onClick={() => addItem({
+                onClick={() => dispatch(addItem({
                   dealId: item.dealId._id,
                   title: item.dealId.title,
                   restaurantName: item.dealId.restaurantName,
                   price: item.dealId.price ?? 0,
-                })}
+                }))}
                 className="rounded bg-emerald-600 px-3 py-1 text-xs font-medium text-white hover:bg-emerald-500"
               >
                 Add to Cart

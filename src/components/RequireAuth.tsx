@@ -1,10 +1,10 @@
 import { Link } from "react-router-dom";
 import type { ReactElement } from "react";
-import { useAuth } from "../context/AuthContext";
+import { useAppSelector } from "../store/hooks";
 
 // Blocks unauthenticated users from protected routes.
 export function RequireAuth({ children }: { children: ReactElement }) {
-  const { isLoggedIn } = useAuth();
+  const isLoggedIn = useAppSelector((state) => !!state.auth.token);
   if (!isLoggedIn) {
     return (
       <section>

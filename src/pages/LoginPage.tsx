@@ -1,7 +1,8 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { login } from "../store/authSlice";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { apiPost } from "../lib/api";
 
 type LoginData = {
@@ -10,7 +11,8 @@ type LoginData = {
 
 export function LoginPage() {
   const navigate = useNavigate();
-  const { isLoggedIn, login } = useAuth();
+  const dispatch = useAppDispatch();
+  const isLoggedIn = useAppSelector((state) => !!state.auth.token);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -27,7 +29,7 @@ export function LoginPage() {
     setError("");
     try {
       const data = await apiPost<LoginData>("/api/auth/login", { email, password });
-      login(data.token);
+      dispatch(login(data.token));
       navigate("/deals");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");

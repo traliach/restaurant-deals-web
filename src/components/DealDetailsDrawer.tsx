@@ -5,7 +5,8 @@
  */
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { useCart } from "../context/CartContext";
+import { addItem } from "../store/cartSlice";
+import { useAppDispatch } from "../store/hooks";
 import { apiPost } from "../lib/api";
 
 export type DrawerDeal = {
@@ -64,7 +65,7 @@ function useCountdown(endAt?: string) {
 }
 
 export function DealDetailsDrawer({ deal, onClose }: Props) {
-  const { addItem } = useCart();
+  const dispatch = useAppDispatch();
   const [cartMsg, setCartMsg] = useState("");
   const [favMsg, setFavMsg] = useState("");
   const drawerRef = useRef<HTMLDivElement>(null);
@@ -254,12 +255,12 @@ export function DealDetailsDrawer({ deal, onClose }: Props) {
             <>
               <button
                 onClick={() => {
-                  addItem({
+                  dispatch(addItem({
                     dealId: deal._id,
                     title: deal.title,
                     restaurantName: deal.restaurantName,
                     price: deal.price ?? 0,
-                  });
+                  }));
                   setCartMsg("Added to cart!");
                   setTimeout(() => setCartMsg(""), 2500);
                 }}

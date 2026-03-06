@@ -1,8 +1,16 @@
 import { Link } from "react-router-dom";
-import { useCart } from "../context/CartContext";
+import { addItem, decrementItem, removeItem } from "../store/cartSlice";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
 
 export function CartPage() {
-  const { items, addItem, removeItem, decrementItem, total, count } = useCart();
+  const dispatch = useAppDispatch();
+  const items = useAppSelector((state) => state.cart.items);
+  const total = useAppSelector((state) =>
+    state.cart.items.reduce((sum, item) => sum + item.price * item.qty, 0)
+  );
+  const count = useAppSelector((state) =>
+    state.cart.items.reduce((sum, item) => sum + item.qty, 0)
+  );
 
   if (count === 0) {
     return (
@@ -34,14 +42,14 @@ export function CartPage() {
               {/* Quantity controls */}
               <div className="flex items-center gap-1 rounded border">
                 <button
-                  onClick={() => decrementItem(item.dealId)}
+                  onClick={() => dispatch(decrementItem(item.dealId))}
                   className="px-2 py-1 text-slate-600 hover:bg-slate-100 rounded-l"
                 >
                   −
                 </button>
                 <span className="w-8 text-center text-sm font-medium">{item.qty}</span>
                 <button
-                  onClick={() => addItem({ dealId: item.dealId, title: item.title, restaurantName: item.restaurantName, price: item.price })}
+                  onClick={() => dispatch(addItem({ dealId: item.dealId, title: item.title, restaurantName: item.restaurantName, price: item.price }))}
                   className="px-2 py-1 text-slate-600 hover:bg-slate-100 rounded-r"
                 >
                   +
@@ -51,7 +59,7 @@ export function CartPage() {
                 ${(item.price * item.qty).toFixed(2)}
               </span>
               <button
-                onClick={() => removeItem(item.dealId)}
+                onClick={() => dispatch(removeItem(item.dealId))}
                 className="text-sm text-red-400 hover:text-red-600"
               >
                 ✕

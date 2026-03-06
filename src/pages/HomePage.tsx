@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { BadgeCheck, Clock3, ShieldCheck, Sparkles, MapPin, UtensilsCrossed } from "lucide-react";
-import { useAuth } from "../context/AuthContext";
+import { useAppSelector } from "../store/hooks";
 import { apiGet } from "../lib/api";
 import { DealCard } from "../components/DealCard";
 import { DealDetailsDrawer, type DrawerDeal } from "../components/DealDetailsDrawer";
@@ -98,7 +98,7 @@ function EmptyDealsState() {
 }
 
 export function HomePage() {
-  const { role } = useAuth();
+  const role = useAppSelector((state) => state.auth.role);
   const [deals, setDeals] = useState<Deal[]>([]);
   const [selectedDeal, setSelectedDeal] = useState<DrawerDeal | null>(null);
   const [loading, setLoading] = useState(true);

@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import type { ReactElement } from "react";
-import { useAuth } from "../context/AuthContext";
-import type { Role } from "../context/AuthContext";
+import type { Role } from "../store/authSlice";
+import { useAppSelector } from "../store/hooks";
 
 // Blocks users without the required role.
 export function RequireRole({
@@ -11,7 +11,7 @@ export function RequireRole({
   children: ReactElement;
   allowed: Role[];
 }) {
-  const { role } = useAuth();
+  const role = useAppSelector((state) => state.auth.role);
   if (!role || !allowed.includes(role)) {
     return (
       <section>
