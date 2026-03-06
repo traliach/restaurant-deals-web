@@ -104,25 +104,22 @@ export function DealDetailsDrawer({ deal, onClose }: Props) {
 
   return (
     <>
-      {/* Backdrop */}
       <div
         className="fixed inset-0 z-40 bg-black/30"
         onClick={onClose}
         aria-hidden
       />
 
-      {/* Drawer panel */}
       <div
         ref={drawerRef}
         className="fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col overflow-y-auto bg-white shadow-2xl"
       >
-        {/* Header */}
-        <div className="flex items-center justify-between border-b px-5 py-4">
-          <h2 className="text-base font-semibold text-slate-800">Deal Details</h2>
+        <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+          <h2 className="text-base font-semibold text-slate-900">Deal Details</h2>
           <div className="flex items-center gap-3">
             <Link
               to={`/deals/${deal._id}`}
-              className="text-xs text-indigo-600 hover:underline"
+              className="text-xs font-medium text-indigo-600 hover:underline"
               onClick={onClose}
             >
               Open full page ↗
@@ -137,118 +134,120 @@ export function DealDetailsDrawer({ deal, onClose }: Props) {
           </div>
         </div>
 
-        <div className="flex-1 p-5 space-y-4">
-          {deal.imageUrl && (
+        <div className="flex-1 space-y-5 p-5">
+          <div className="overflow-hidden rounded-2xl">
             <img
-              src={deal.imageUrl}
+              src={deal.imageUrl || "/images/placeholders/default.svg"}
               alt={deal.title}
-              className="h-48 w-full rounded-lg object-cover"
+              className="h-52 w-full object-cover"
+              onError={(e) => {
+                e.currentTarget.src = "/images/placeholders/default.svg";
+              }}
             />
-          )}
-
-          {/* Title + badges */}
-          <div className="flex items-start justify-between gap-2 flex-wrap">
-            <h3 className="text-lg font-bold text-slate-900">{deal.title}</h3>
-            <div className="flex flex-wrap gap-1.5">
-              {deal.dealType && (
-                <span className="rounded-full bg-indigo-100 px-2.5 py-0.5 text-xs font-semibold text-indigo-700">
-                  {deal.dealType}
-                </span>
-              )}
-              {deal.cuisineType && (
-                <span className="rounded-full bg-violet-100 px-2.5 py-0.5 text-xs font-semibold text-violet-700">
-                  {deal.cuisineType}
-                </span>
-              )}
-            </div>
           </div>
 
-          {/* Restaurant + rating */}
-          <div className="flex items-center gap-3">
-            <p className="font-medium text-slate-700">{deal.restaurantName}</p>
-            {deal.yelpRating != null && (
-              <span className="text-sm font-semibold text-amber-600">
-                ★ {deal.yelpRating.toFixed(1)}
-              </span>
-            )}
+          <div className="border-b border-slate-100 pb-4">
+            <div className="flex flex-wrap items-start justify-between gap-2">
+              <div>
+                <h3 className="text-xl font-bold text-slate-900">{deal.title}</h3>
+                <div className="mt-2 flex items-center gap-3">
+                  <p className="font-medium text-slate-700">{deal.restaurantName}</p>
+                  {deal.yelpRating != null ? (
+                    <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">
+                      ★ {deal.yelpRating.toFixed(1)}
+                    </span>
+                  ) : null}
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-1.5">
+                {deal.dealType ? (
+                  <span className="rounded-full bg-indigo-100 px-2.5 py-0.5 text-xs font-semibold text-indigo-700">
+                    {deal.dealType}
+                  </span>
+                ) : null}
+                {deal.cuisineType ? (
+                  <span className="rounded-full bg-violet-100 px-2.5 py-0.5 text-xs font-semibold text-violet-700">
+                    {deal.cuisineType}
+                  </span>
+                ) : null}
+              </div>
+            </div>
+
+            {(deal.restaurantAddress || deal.restaurantCity) ? (
+              <div className="mt-4 flex items-center gap-2 text-sm text-slate-500">
+                <span>📍</span>
+                <span>{deal.restaurantAddress ?? deal.restaurantCity}</span>
+                <a
+                  href={`https://maps.google.com/?q=${encodeURIComponent(
+                    deal.restaurantAddress ?? deal.restaurantCity ?? ""
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-indigo-600 hover:underline"
+                >
+                  Directions
+                </a>
+              </div>
+            ) : null}
           </div>
 
-          {/* Location */}
-          {(deal.restaurantAddress || deal.restaurantCity) && (
-            <div className="flex items-center gap-2 text-sm text-slate-500">
-              <span>📍</span>
-              <span>{deal.restaurantAddress ?? deal.restaurantCity}</span>
-              <a
-                href={`https://maps.google.com/?q=${encodeURIComponent(
-                  deal.restaurantAddress ?? deal.restaurantCity ?? ""
-                )}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-indigo-600 hover:underline"
-              >
-                Directions
-              </a>
+          {countdown ? (
+            <div
+              className={`rounded-2xl border px-4 py-3 text-sm font-semibold ${
+                isExpired
+                  ? "border-red-200 bg-red-50 text-red-600"
+                  : "border-orange-200 bg-orange-50 text-orange-700"
+              }`}
+            >
+              {isExpired ? "This deal has expired." : `Expires in: ${countdown}`}
             </div>
-          )}
+          ) : null}
 
-          {/* Dietary tags */}
-          {deal.dietaryTags && deal.dietaryTags.length > 0 && (
-            <div className="flex flex-wrap gap-1.5">
+          {discount ? (
+            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-4">
+              <p className="text-lg font-bold text-emerald-700">{discount}</p>
+            </div>
+          ) : null}
+
+          <div className="rounded-2xl bg-slate-50 px-4 py-4">
+            <p className="text-sm leading-relaxed text-slate-700">{deal.description}</p>
+          </div>
+
+          {deal.dietaryTags && deal.dietaryTags.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
               {deal.dietaryTags.map((tag) => (
                 <span
                   key={tag}
-                  className="rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-xs font-medium text-emerald-700"
+                  className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700"
                 >
                   {tag}
                 </span>
               ))}
             </div>
-          )}
+          ) : null}
 
-          {/* Description */}
-          <p className="text-sm text-slate-700 leading-relaxed">{deal.description}</p>
-
-          {/* Expiry countdown */}
-          {countdown && (
-            <div
-              className={`rounded-lg px-4 py-2 text-sm font-semibold ${
-                isExpired
-                  ? "bg-red-50 border border-red-200 text-red-600"
-                  : "bg-orange-50 border border-orange-200 text-orange-600"
-              }`}
-            >
-              {isExpired ? "This deal has expired." : `Expires in: ${countdown}`}
+          {deal.price != null && deal.price > 0 ? (
+            <div className="rounded-2xl border border-slate-200 bg-white px-4 py-4">
+              <p className="text-xs uppercase tracking-wide text-slate-400">Deal price</p>
+              <p className="mt-2 text-3xl font-bold text-slate-900">
+                ${deal.price.toFixed(2)}
+                <span className="ml-2 text-sm font-normal text-slate-400">per order</span>
+              </p>
             </div>
-          )}
+          ) : null}
 
-          {/* Discount highlight */}
-          {discount && (
-            <div className="rounded-lg bg-emerald-50 border border-emerald-200 px-4 py-3">
-              <p className="text-lg font-bold text-emerald-700">{discount}</p>
-            </div>
-          )}
-
-          {/* Price */}
-          {deal.price != null && deal.price > 0 && (
-            <p className="text-2xl font-bold text-slate-900">
-              ${deal.price.toFixed(2)}
-              <span className="ml-2 text-sm font-normal text-slate-400">per order</span>
-            </p>
-          )}
-
-          {/* Action feedback */}
-          {cartMsg && (
+          {cartMsg ? (
             <p className="text-sm font-medium text-emerald-600">{cartMsg}</p>
-          )}
-          {favMsg && (
+          ) : null}
+          {favMsg ? (
             <p className="text-sm text-slate-600">{favMsg}</p>
-          )}
+          ) : null}
         </div>
 
-        {/* Sticky footer actions */}
-        <div className="border-t p-4 space-y-2">
+        <div className="sticky bottom-0 border-t border-slate-200 bg-white p-4 space-y-3">
           {isExpired ? (
-            <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-center text-sm text-red-600 font-medium">
+            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-center text-sm font-medium text-red-600">
               This deal is no longer available.
             </div>
           ) : (
@@ -264,13 +263,13 @@ export function DealDetailsDrawer({ deal, onClose }: Props) {
                   setCartMsg("Added to cart!");
                   setTimeout(() => setCartMsg(""), 2500);
                 }}
-                className="w-full rounded-lg bg-emerald-600 py-3 text-sm font-semibold text-white hover:bg-emerald-500 transition-colors"
+                className="h-12 w-full rounded-xl bg-emerald-600 text-sm font-semibold text-white transition hover:bg-emerald-700"
               >
                 Add to Cart
               </button>
               <button
                 onClick={saveFavorite}
-                className="w-full rounded-lg border border-indigo-600 py-3 text-sm font-semibold text-indigo-600 hover:bg-indigo-50 transition-colors"
+                className="h-12 w-full rounded-xl border border-indigo-200 bg-indigo-50 text-sm font-semibold text-indigo-700 transition hover:bg-indigo-100"
               >
                 ♡ Save to Favorites
               </button>

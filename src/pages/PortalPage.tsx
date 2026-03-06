@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { useLocation } from "react-router-dom";
 import { apiDelete, apiGet, apiPost, apiPut } from "../lib/api";
+import { PageHeader } from "../components/ui/PageHeader";
+import { SurfaceCard } from "../components/ui/SurfaceCard";
 
 type DealType = "Lunch" | "Carryout" | "Delivery" | "Other";
 type DiscountType = "percent" | "amount" | "bogo" | "other";
@@ -38,6 +40,15 @@ type DealStatusFilter = "ALL" | OwnerDeal["status"];
 
 const DEAL_TYPES: DealType[] = ["Lunch", "Carryout", "Delivery", "Other"];
 const DISCOUNT_TYPES: DiscountType[] = ["percent", "amount", "bogo", "other"];
+
+const inputClass =
+  "h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100";
+
+const selectClass =
+  "h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100";
+
+const textareaClass =
+  "min-h-32 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100";
 
 export function PortalPage() {
   const location = useLocation();
@@ -86,6 +97,10 @@ export function PortalPage() {
       }
     }
     loadOwnerDeals();
+  }, []);
+
+  useEffect(() => {
+    loadOrders();
   }, []);
 
   async function createDraft(event: FormEvent) {
@@ -200,6 +215,11 @@ export function PortalPage() {
   const visibleItems =
     statusFilter === "ALL" ? items : items.filter((deal) => deal.status === statusFilter);
 
+  const publishedCount = items.filter((deal) => deal.status === "PUBLISHED").length;
+  const draftCount = items.filter((deal) => deal.status === "DRAFT").length;
+  const submittedCount = items.filter((deal) => deal.status === "SUBMITTED").length;
+  const orderCount = orders.length;
+
   const ORDER_STATUSES: OrderStatus[] = ["Placed", "Preparing", "Ready", "Completed"];
   const statusColors: Record<OrderStatus, string> = {
     Placed: "bg-blue-100 text-blue-700",
@@ -209,307 +229,445 @@ export function PortalPage() {
   };
 
   return (
-    <section>
-      <h1 className="text-2xl font-semibold">Owner Portal</h1>
+    <section className="space-y-8">
+      <PageHeader
+        eyebrow="Owner workspace"
+        title="Owner Portal"
+        description="Create, manage, and track your restaurant promotions from one dashboard."
+      />
 
-      {/* Tab switcher */}
-      <div className="mt-4 mb-6 flex gap-2">
+      <div className="grid gap-4 md:grid-cols-3">
+        <SurfaceCard className="p-5">
+          <p className="text-sm text-slate-500">Published deals</p>
+          <p className="mt-2 text-3xl font-bold text-slate-900">{publishedCount}</p>
+        </SurfaceCard>
+        <SurfaceCard className="p-5">
+          <p className="text-sm text-slate-500">Draft deals</p>
+          <p className="mt-2 text-3xl font-bold text-slate-900">{draftCount}</p>
+        </SurfaceCard>
+        <SurfaceCard className="p-5">
+          <p className="text-sm text-slate-500">Incoming orders</p>
+          <p className="mt-2 text-3xl font-bold text-slate-900">{orderCount}</p>
+        </SurfaceCard>
+      </div>
+
+      <div className="inline-flex rounded-2xl border border-slate-200 bg-white p-1 shadow-sm">
         <button
           onClick={() => setTab("deals")}
-          className={`rounded px-4 py-1.5 text-sm font-medium ${tab === "deals" ? "bg-indigo-600 text-white" : "border text-slate-700 hover:bg-slate-100"}`}
+          className={`rounded-xl px-5 py-2.5 text-sm font-semibold transition ${
+            tab === "deals"
+              ? "bg-slate-900 text-white"
+              : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+          }`}
         >
           My Deals
         </button>
         <button
           onClick={() => { setTab("orders"); loadOrders(); }}
-          className={`rounded px-4 py-1.5 text-sm font-medium ${tab === "orders" ? "bg-indigo-600 text-white" : "border text-slate-700 hover:bg-slate-100"}`}
+          className={`rounded-xl px-5 py-2.5 text-sm font-semibold transition ${
+            tab === "orders"
+              ? "bg-slate-900 text-white"
+              : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+          }`}
         >
           Incoming Orders
         </button>
       </div>
 
-      {/* Orders tab */}
-      {tab === "orders" && (
-        <div>
-          {ordersLoading && <p className="text-slate-600">Loading orders...</p>}
-          {!ordersLoading && orders.length === 0 && (
-            <p className="text-slate-500">No orders yet for your restaurant.</p>
-          )}
-          <ul className="space-y-4">
-            {orders.map((order) => (
-              <li key={order._id} className="rounded-lg border bg-white p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColors[order.status]}`}>
-                    {order.status}
-                  </span>
-                  <span className="text-xs text-slate-400">
-                    {new Date(order.createdAt).toLocaleString()}
-                  </span>
-                </div>
-                <ul className="text-sm text-slate-700 space-y-0.5">
-                  {order.items.map((item, i) => (
-                    <li key={i} className="flex justify-between">
-                      <span>{item.title} × {item.qty}</span>
-                      <span>${(item.price * item.qty).toFixed(2)}</span>
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-2 flex items-center justify-between border-t pt-2">
-                  <span className="text-sm font-semibold">Total: ${order.total.toFixed(2)}</span>
-                  {(() => {
-                    const nextStatus = ORDER_STATUSES[ORDER_STATUSES.indexOf(order.status) + 1];
-                    if (!nextStatus) return null;
-                    return (
-                      <button
-                        onClick={() => updateOrderStatus(order._id, nextStatus)}
-                        className="rounded bg-indigo-600 px-3 py-1 text-xs font-medium text-white hover:bg-indigo-500"
-                      >
-                        Mark as {nextStatus}
-                      </button>
-                    );
-                  })()}
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {tab === "deals" && (
-      <div>
-      {/* Create form */}
-      <form onSubmit={createDraft} className="mt-4 space-y-2 rounded-lg border bg-white p-4">
-        <h2 className="text-sm font-semibold">Create Draft Deal</h2>
-        <input
-          value={restaurantName}
-          onChange={(e) => setRestaurantName(e.target.value)}
-          placeholder="Restaurant name"
-          className="w-full rounded border px-3 py-2 text-sm"
-          required
-        />
-        <input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Deal title"
-          className="w-full rounded border px-3 py-2 text-sm"
-          required
-        />
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Deal description"
-          className="w-full rounded border px-3 py-2 text-sm"
-          required
-        />
-        <div className="flex flex-wrap gap-3">
-          <div className="flex-1 min-w-[140px]">
-            <label className="block text-xs font-medium text-slate-600 mb-1">Deal type</label>
-            <select
-              value={dealType}
-              onChange={(e) => setDealType(e.target.value as DealType)}
-              className="w-full rounded border px-3 py-2 text-sm"
-            >
-              {DEAL_TYPES.map((t) => (
-                <option key={t} value={t}>{t}</option>
-              ))}
-            </select>
-          </div>
-          <div className="flex-1 min-w-[140px]">
-            <label className="block text-xs font-medium text-slate-600 mb-1">Discount type</label>
-            <select
-              value={discountType}
-              onChange={(e) => setDiscountType(e.target.value as DiscountType)}
-              className="w-full rounded border px-3 py-2 text-sm"
-            >
-              {DISCOUNT_TYPES.map((t) => (
-                <option key={t} value={t}>{t}</option>
-              ))}
-            </select>
-          </div>
-          <div className="w-28">
-            <label className="block text-xs font-medium text-slate-600 mb-1">Discount value</label>
-            <input
-              type="number"
-              value={value}
-              onChange={(e) => setValue(Number(e.target.value))}
-              className="w-full rounded border px-3 py-2 text-sm"
-              min={1}
-              required
-            />
-          </div>
-          <div className="w-28">
-            <label className="block text-xs font-medium text-slate-600 mb-1">Price ($)</label>
-            <input
-              type="number"
-              value={price}
-              onChange={(e) => setPrice(e.target.value === "" ? "" : Number(e.target.value))}
-              placeholder="0.00"
-              className="w-full rounded border px-3 py-2 text-sm"
-              min={0}
-              step={0.01}
-            />
-          </div>
-          <div className="flex-1 min-w-[140px]">
-            <label className="block text-xs font-medium text-slate-600 mb-1">Cuisine type</label>
-            <select
-              value={cuisineType}
-              onChange={(e) => setCuisineType(e.target.value as CuisineType)}
-              className="w-full rounded border px-3 py-2 text-sm"
-            >
-              <option value="">None</option>
-              {CUISINE_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
-            </select>
-          </div>
-          <div className="flex-1 min-w-[160px]">
-            <label className="block text-xs font-medium text-slate-600 mb-1">Expiry date</label>
-            <input
-              type="datetime-local"
-              value={endAt}
-              onChange={(e) => setEndAt(e.target.value)}
-              className="w-full rounded border px-3 py-2 text-sm"
-            />
-          </div>
-        </div>
-        <div>
-          <label className="block text-xs font-medium text-slate-600 mb-2">Dietary tags</label>
-          <div className="flex flex-wrap gap-2">
-            {DIETARY_OPTIONS.map((tag) => (
-              <button
-                key={tag}
-                type="button"
-                onClick={() => toggleDietaryTag(tag)}
-                className={`rounded-full border px-3 py-0.5 text-xs font-medium transition-colors ${
-                  dietaryTags.includes(tag)
-                    ? "border-emerald-500 bg-emerald-500 text-white"
-                    : "border-slate-200 text-slate-600 hover:border-emerald-400"
-                }`}
-              >
-                {tag}
-              </button>
-            ))}
-          </div>
-        </div>
-        <button className="rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500">
-          Create Draft
-        </button>
-      </form>
-
-      {error ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
-      {success ? <p className="mt-3 text-sm text-emerald-700">{success}</p> : null}
-
-      {/* Status filter */}
-      <div className="mt-4 flex items-center gap-2">
-        <label className="text-xs font-medium text-slate-600">Filter:</label>
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as DealStatusFilter)}
-          className="rounded border px-2 py-1 text-xs"
-        >
-          <option value="ALL">All</option>
-          <option value="DRAFT">Draft</option>
-          <option value="SUBMITTED">Submitted</option>
-          <option value="PUBLISHED">Published</option>
-          <option value="REJECTED">Rejected</option>
-        </select>
-      </div>
-
-      {items.length === 0 ? (
-        <p className="mt-4 text-slate-600">No deals yet. Create your first draft above.</p>
+      {error ? (
+        <SurfaceCard className="p-4">
+          <p className="text-sm font-medium text-red-600">{error}</p>
+        </SurfaceCard>
+      ) : null}
+      {success ? (
+        <SurfaceCard className="p-4">
+          <p className="text-sm font-medium text-emerald-700">{success}</p>
+        </SurfaceCard>
       ) : null}
 
-      {/* Deal list */}
-      <ul className="mt-4 space-y-3">
-        {visibleItems.map((deal) => (
-          <li key={deal._id} className="rounded-lg border bg-white p-4">
-            {editingId === deal._id ? (
-              /* Inline edit form */
-              <form onSubmit={saveEdit} className="space-y-2">
-                <input
-                  value={editTitle}
-                  onChange={(e) => setEditTitle(e.target.value)}
-                  className="w-full rounded border px-3 py-2 text-sm"
-                  required
-                />
-                <textarea
-                  value={editDescription}
-                  onChange={(e) => setEditDescription(e.target.value)}
-                  className="w-full rounded border px-3 py-2 text-sm"
-                  required
-                />
-                <div className="flex gap-2">
-                  <button
-                    type="submit"
-                    className="rounded bg-indigo-600 px-3 py-1 text-xs font-medium text-white hover:bg-indigo-500"
-                  >
-                    Save
-                  </button>
-                  <button
-                    type="button"
-                    onClick={cancelEdit}
-                    className="rounded border px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-100"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            ) : (
-              /* Display mode */
-              <>
-                <div className="flex items-start justify-between gap-2">
-                  <p className="font-semibold">{deal.title}</p>
-                  <span className={`shrink-0 rounded px-2 py-0.5 text-xs font-medium ${
-                    deal.status === "PUBLISHED" ? "bg-emerald-100 text-emerald-700" :
-                    deal.status === "REJECTED" ? "bg-rose-100 text-rose-700" :
-                    deal.status === "SUBMITTED" ? "bg-amber-100 text-amber-700" :
-                    "bg-slate-100 text-slate-600"
-                  }`}>
-                    {deal.status}
-                  </span>
-                </div>
-                <p className="text-sm text-slate-600">{deal.restaurantName}</p>
-                {deal.description ? (
-                  <p className="mt-1 text-sm text-slate-700">{deal.description}</p>
-                ) : null}
-                {deal.createdAt ? (
-                  <p className="mt-1 text-xs text-slate-500">
-                    Created: {new Date(deal.createdAt).toLocaleDateString()}
-                  </p>
-                ) : null}
-                {deal.status === "REJECTED" && deal.rejectionReason ? (
-                  <p className="mt-2 rounded bg-rose-50 px-2 py-1 text-xs text-rose-700">
-                    Rejection reason: {deal.rejectionReason}
-                  </p>
-                ) : null}
-                {deal.status === "DRAFT" || deal.status === "REJECTED" ? (
-                  <div className="mt-3 flex gap-2">
-                    <button
-                      onClick={() => startEdit(deal)}
-                      className="rounded border px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-100"
-                    >
-                      Edit
-                    </button>
-                    {deal.status === "DRAFT" ? (
-                      <button
-                        onClick={() => deleteDeal(deal._id)}
-                        className="rounded border px-3 py-1 text-xs font-medium text-rose-700 hover:bg-rose-50"
-                      >
-                        Delete
-                      </button>
-                    ) : null}
-                    <button
-                      onClick={() => submitDeal(deal._id)}
-                      className="rounded bg-indigo-600 px-3 py-1 text-xs font-medium text-white hover:bg-indigo-500"
-                    >
-                      Submit for Review
-                    </button>
+      {tab === "orders" ? (
+        <div className="space-y-5">
+          {ordersLoading ? (
+            <SurfaceCard className="p-8 text-center">
+              <p className="text-slate-600">Loading orders...</p>
+            </SurfaceCard>
+          ) : orders.length === 0 ? (
+            <SurfaceCard className="p-8 text-center">
+              <h2 className="text-xl font-semibold text-slate-900">No incoming orders yet</h2>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Once customers place orders for your published deals, they will appear here.
+              </p>
+            </SurfaceCard>
+          ) : (
+            <div className="grid gap-5">
+              {orders.map((order) => (
+                <SurfaceCard key={order._id} className="p-5">
+                  <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                    <div>
+                      <p className="text-lg font-semibold text-slate-900">Order #{order._id.slice(-6)}</p>
+                      <p className="mt-1 text-sm text-slate-500">
+                        {new Date(order.createdAt).toLocaleString()}
+                      </p>
+                    </div>
+                    <span className={`w-fit rounded-full px-3 py-1 text-xs font-semibold ${statusColors[order.status]}`}>
+                      {order.status}
+                    </span>
                   </div>
-                ) : null}
-              </>
-            )}
-          </li>
-        ))}
-      </ul>
-      </div>
+
+                  <ul className="space-y-2 text-sm text-slate-700">
+                    {order.items.map((item, index) => (
+                      <li key={index} className="flex justify-between gap-4">
+                        <span>{item.title} × {item.qty}</span>
+                        <span>${(item.price * item.qty).toFixed(2)}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <div className="mt-4 flex flex-col gap-3 border-t border-slate-100 pt-4 md:flex-row md:items-center md:justify-between">
+                    <span className="text-sm font-semibold text-slate-900">
+                      Total: ${order.total.toFixed(2)}
+                    </span>
+                    {(() => {
+                      const nextStatus = ORDER_STATUSES[ORDER_STATUSES.indexOf(order.status) + 1];
+                      if (!nextStatus) return null;
+                      return (
+                        <button
+                          onClick={() => updateOrderStatus(order._id, nextStatus)}
+                          className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-600"
+                        >
+                          Mark as {nextStatus}
+                        </button>
+                      );
+                    })()}
+                  </div>
+                </SurfaceCard>
+              ))}
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="space-y-8">
+          <SurfaceCard className="p-6 md:p-8">
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold text-slate-900">Create Draft Deal</h2>
+              <p className="mt-2 text-sm text-slate-600">
+                Build a polished offer with structured pricing, cuisine tags, and expiration.
+              </p>
+            </div>
+
+            <form onSubmit={createDraft}>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    Restaurant name
+                  </label>
+                  <input
+                    value={restaurantName}
+                    onChange={(e) => setRestaurantName(e.target.value)}
+                    placeholder="Restaurant name"
+                    className={inputClass}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    Deal title
+                  </label>
+                  <input
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="Deal title"
+                    className={inputClass}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Description
+                </label>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Deal description"
+                  className={textareaClass}
+                  required
+                />
+              </div>
+
+              <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+                <div>
+                  <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    Deal type
+                  </label>
+                  <select
+                    value={dealType}
+                    onChange={(e) => setDealType(e.target.value as DealType)}
+                    className={selectClass}
+                  >
+                    {DEAL_TYPES.map((option) => (
+                      <option key={option} value={option}>{option}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    Discount type
+                  </label>
+                  <select
+                    value={discountType}
+                    onChange={(e) => setDiscountType(e.target.value as DiscountType)}
+                    className={selectClass}
+                  >
+                    {DISCOUNT_TYPES.map((option) => (
+                      <option key={option} value={option}>{option}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    Discount value
+                  </label>
+                  <input
+                    type="number"
+                    value={value}
+                    onChange={(e) => setValue(Number(e.target.value))}
+                    className={inputClass}
+                    min={1}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    Price ($)
+                  </label>
+                  <input
+                    type="number"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value === "" ? "" : Number(e.target.value))}
+                    placeholder="0.00"
+                    className={inputClass}
+                    min={0}
+                    step={0.01}
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    Cuisine type
+                  </label>
+                  <select
+                    value={cuisineType}
+                    onChange={(e) => setCuisineType(e.target.value as CuisineType)}
+                    className={selectClass}
+                  >
+                    <option value="">None</option>
+                    {CUISINE_TYPES.map((option) => (
+                      <option key={option} value={option}>{option}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="mt-4 grid gap-4 md:grid-cols-2">
+                <div>
+                  <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    Expiry date
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={endAt}
+                    onChange={(e) => setEndAt(e.target.value)}
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    Submission status
+                  </label>
+                  <div className="flex h-12 items-center rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-500">
+                    New deals are created as drafts first.
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-5">
+                <p className="mb-3 text-sm font-semibold text-slate-700">Dietary tags</p>
+                <div className="flex flex-wrap gap-2">
+                  {DIETARY_OPTIONS.map((tag) => (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() => toggleDietaryTag(tag)}
+                      className={
+                        dietaryTags.includes(tag)
+                          ? "rounded-full border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-semibold text-indigo-700"
+                          : "rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition hover:border-slate-300 hover:bg-slate-50"
+                      }
+                    >
+                      {tag}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-6 flex justify-end">
+                <button className="rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-600">
+                  Create Draft
+                </button>
+              </div>
+            </form>
+          </SurfaceCard>
+
+          <SurfaceCard className="p-5">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">
+                  Deal list
+                </p>
+                <p className="mt-2 text-sm text-slate-600">
+                  {visibleItems.length} deal{visibleItems.length !== 1 ? "s" : ""} shown. {submittedCount} waiting for review.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium text-slate-600">Status</label>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value as DealStatusFilter)}
+                  className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+                >
+                  <option value="ALL">All</option>
+                  <option value="DRAFT">Draft</option>
+                  <option value="SUBMITTED">Submitted</option>
+                  <option value="PUBLISHED">Published</option>
+                  <option value="REJECTED">Rejected</option>
+                </select>
+              </div>
+            </div>
+          </SurfaceCard>
+
+          {visibleItems.length === 0 ? (
+            <SurfaceCard className="p-8 text-center">
+              <h2 className="text-xl font-semibold text-slate-900">No deals yet</h2>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Create your first draft above to start building your restaurant offers.
+              </p>
+            </SurfaceCard>
+          ) : (
+            <div className="grid gap-5">
+              {visibleItems.map((deal) => (
+                <SurfaceCard key={deal._id} className="p-5">
+                  {editingId === deal._id ? (
+                    <form onSubmit={saveEdit} className="space-y-4">
+                      <div>
+                        <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                          Title
+                        </label>
+                        <input
+                          value={editTitle}
+                          onChange={(e) => setEditTitle(e.target.value)}
+                          className={inputClass}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                          Description
+                        </label>
+                        <textarea
+                          value={editDescription}
+                          onChange={(e) => setEditDescription(e.target.value)}
+                          className={textareaClass}
+                          required
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          type="submit"
+                          className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-600"
+                        >
+                          Save
+                        </button>
+                        <button
+                          type="button"
+                          onClick={cancelEdit}
+                          className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </form>
+                  ) : (
+                    <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                      <div>
+                        <div className="flex flex-wrap items-center gap-3">
+                          <h3 className="text-lg font-semibold text-slate-900">{deal.title}</h3>
+                          <span
+                            className={[
+                              "rounded-full px-3 py-1 text-xs font-semibold",
+                              deal.status === "PUBLISHED"
+                                ? "bg-emerald-50 text-emerald-700"
+                                : deal.status === "DRAFT"
+                                  ? "bg-amber-50 text-amber-700"
+                                  : deal.status === "REJECTED"
+                                    ? "bg-rose-50 text-rose-700"
+                                    : "bg-slate-100 text-slate-700",
+                            ].join(" ")}
+                          >
+                            {deal.status}
+                          </span>
+                        </div>
+
+                        <p className="mt-2 text-sm text-slate-500">{deal.restaurantName}</p>
+                        <p className="mt-3 text-sm leading-6 text-slate-600">{deal.description}</p>
+                        {deal.createdAt ? (
+                          <p className="mt-3 text-xs text-slate-400">
+                            Created: {new Date(deal.createdAt).toLocaleDateString()}
+                          </p>
+                        ) : null}
+                        {deal.status === "REJECTED" && deal.rejectionReason ? (
+                          <p className="mt-3 rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-700">
+                            Rejection reason: {deal.rejectionReason}
+                          </p>
+                        ) : null}
+                      </div>
+
+                      {(deal.status === "DRAFT" || deal.status === "REJECTED") ? (
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            onClick={() => startEdit(deal)}
+                            className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                          >
+                            Edit
+                          </button>
+                          {deal.status === "DRAFT" ? (
+                            <button
+                              onClick={() => deleteDeal(deal._id)}
+                              className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100"
+                            >
+                              Delete
+                            </button>
+                          ) : null}
+                          <button
+                            onClick={() => submitDeal(deal._id)}
+                            className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-600"
+                          >
+                            Submit for Review
+                          </button>
+                        </div>
+                      ) : null}
+                    </div>
+                  )}
+                </SurfaceCard>
+              ))}
+            </div>
+          )}
+        </div>
       )}
     </section>
   );

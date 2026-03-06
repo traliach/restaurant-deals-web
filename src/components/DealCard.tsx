@@ -32,13 +32,26 @@ function getFallbackImage(title?: string, cuisineType?: string) {
   return "/images/placeholders/default.svg";
 }
 
+function formatCountdown(endAt?: string): string | null {
+  if (!endAt) return null;
+  const diff = new Date(endAt).getTime() - Date.now();
+  if (diff <= 0) return "Expired";
+  const days = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff % 86400000) / 3600000);
+  if (days > 0) return `${days}d ${hours}h left`;
+  const mins = Math.floor((diff % 3600000) / 60000);
+  return hours > 0 ? `${hours}h ${mins}m left` : `${mins}m left`;
+}
+
 export function DealCard({
   id, title, restaurantName, restaurantCity, description,
   dealType, price, imageUrl,
-  cuisineType, dietaryTags, yelpRating, onOpenDrawer, children,
+  cuisineType, dietaryTags, yelpRating, endAt, onOpenDrawer, children,
   // accepted but not rendered — kept for API compatibility with DealsPage/FavoritesPage
-  discountType: _dt, value: _val, endAt: _end,
+  discountType: _dt, value: _val,
 }: DealCardProps) {
+  const countdown = formatCountdown(endAt);
+  const isExpired = countdown === "Expired";
 
   return (
     <Link
@@ -96,16 +109,29 @@ export function DealCard({
         </div>
 
         <div className="mt-auto pt-5">
-          <div className="flex items-center justify-between">
+          <div className="flex items-end justify-between gap-3">
             <div>
               <p className="text-xs uppercase tracking-wide text-slate-400">Deal price</p>
               <p className="text-xl font-bold text-slate-900">
                 {typeof price === "number" && price > 0 ? `$${price.toFixed(2)}` : "View offer"}
               </p>
             </div>
-            <span className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition group-hover:bg-indigo-600">
-              View Deal
-            </span>
+            <div className="flex flex-col items-end gap-2">
+              {countdown ? (
+                <span
+                  className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                    isExpired
+                      ? "bg-red-50 text-red-600"
+                      : "bg-orange-50 text-orange-600"
+                  }`}
+                >
+                  {countdown}
+                </span>
+              ) : null}
+              <span className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition group-hover:bg-indigo-600">
+                View Deal
+              </span>
+            </div>
           </div>
         </div>
 

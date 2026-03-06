@@ -21,7 +21,7 @@ React frontend for a moderated restaurant deals marketplace. Customers browse an
 - Floating AI chat widget (Groq) — type budget or city, filters apply automatically
 - Explore page: search real restaurants via Yelp, pre-fill owner portal
 - Auth token expiry detection — auto-logout on 401 via `auth:expired` custom event
-- Register / login with JWT stored in React Context + localStorage
+- Register / login with JWT stored in Redux + localStorage
 - Responsive layout with mobile hamburger menu
 - 404 catch-all page
 
@@ -29,6 +29,7 @@ React frontend for a moderated restaurant deals marketplace. Customers browse an
 
 - React 19 + TypeScript
 - Vite
+- Redux Toolkit (auth + cart)
 - React Router v6
 - Tailwind CSS v4
 - Stripe.js + React Stripe Elements
@@ -89,9 +90,11 @@ src/
   main.tsx                  Entry point + providers
   config/
     env.ts                  Vite env config
-  context/
-    AuthContext.tsx          Global auth state (token + role)
-    CartContext.tsx          Global cart state (localStorage)
+  store/
+    index.ts                Redux store (auth + cart slices)
+    authSlice.ts            Auth state (token + role)
+    cartSlice.ts            Cart state (localStorage persistence)
+    hooks.ts                useAppSelector, useAppDispatch
   components/
     RequireAuth.tsx          Auth route guard
     RequireRole.tsx          Role route guard
@@ -125,13 +128,13 @@ src/
 ## Auth Flow
 
 1. User registers or logs in → API returns JWT
-2. Token stored via `AuthContext` (synced to `localStorage`)
-3. `useAuth()` hook provides `role`, `isLoggedIn`, `login()`, `logout()`
-4. Route guards (`RequireAuth`, `RequireRole`) check context before rendering
+2. Token stored in Redux `authSlice` (synced to `localStorage`)
+3. `useAppSelector` / `useAppDispatch` for `role`, `isLoggedIn`, `login()`, `logout()`
+4. Route guards (`RequireAuth`, `RequireRole`) check Redux state before rendering
 
 ## Cart Flow
 
-1. Customer clicks "Add to Cart" on a deal → `CartContext` updates
+1. Customer clicks "Add to Cart" on a deal → Redux `cartSlice` updates
 2. Cart persists in `localStorage` — survives page refresh and logout
 3. Checkout sends cart items to `/api/orders` + `/api/payments/create-intent`
 4. Stripe confirms payment → order saved → cart cleared

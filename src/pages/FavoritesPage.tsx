@@ -14,6 +14,11 @@ type FavoriteDeal = {
   discountType?: string;
   value?: number;
   price?: number;
+  imageUrl?: string;
+  cuisineType?: string;
+  dietaryTags?: string[];
+  yelpRating?: number;
+  endAt?: string;
 };
 
 type FavoriteItem = {
@@ -81,6 +86,11 @@ export function FavoritesPage() {
             discountType={item.dealId.discountType}
             value={item.dealId.value}
             price={item.dealId.price}
+            imageUrl={item.dealId.imageUrl}
+            cuisineType={item.dealId.cuisineType}
+            dietaryTags={item.dealId.dietaryTags}
+            yelpRating={item.dealId.yelpRating}
+            endAt={item.dealId.endAt}
           >
             <div className="mt-3 flex gap-2">
               <button

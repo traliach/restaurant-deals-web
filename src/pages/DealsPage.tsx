@@ -1,8 +1,10 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { DealDetailsDrawer, type DrawerDeal } from "../components/DealDetailsDrawer";
 import { apiGet } from "../lib/api";
 import { DealCard } from "../components/DealCard";
-import { DealDetailsDrawer, type DrawerDeal } from "../components/DealDetailsDrawer";
+import { PageHeader } from "../components/ui/PageHeader";
+import { SurfaceCard } from "../components/ui/SurfaceCard";
 
 type Deal = {
   _id: string;
@@ -46,6 +48,12 @@ function useDebounce(value: string, ms = 300) {
   }, [value, ms]);
   return debounced;
 }
+
+const inputClass =
+  "h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100";
+
+const selectClass =
+  "h-12 w-full rounded-xl border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100";
 
 export function DealsPage() {
   const [searchParams] = useSearchParams();
@@ -126,155 +134,197 @@ export function DealsPage() {
   useEffect(() => { loadDeals(); }, [loadDeals]);
 
   return (
-    <section>
-      <h1 className="text-2xl font-semibold">Deals Explorer</h1>
+    <section className="space-y-8">
+      <PageHeader
+        eyebrow="Marketplace"
+        title="Deals Explorer"
+        description="Discover approved restaurant promotions, compare offers, and open a quick detail view without leaving the page."
+      />
 
-      {/* Filter controls */}
-      <div className="mt-4 flex flex-wrap items-end gap-3">
-        <div className="flex-1 min-w-[200px]">
-          <label className="block text-xs font-medium text-slate-600 mb-1">Search</label>
-          <div className="relative">
+      <SurfaceCard className="p-5 md:p-6">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+          <div className="xl:col-span-2">
+            <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+              Search
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                placeholder="Search deals..."
+                className={inputClass}
+              />
+              {search ? (
+                <button
+                  onClick={() => { setSearch(""); setPage(1); }}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 transition hover:text-slate-600"
+                  aria-label="Clear search"
+                >
+                  &times;
+                </button>
+              ) : null}
+            </div>
+          </div>
+
+          <div>
+            <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+              Max price ($)
+            </label>
             <input
-              type="text"
-              value={search}
-              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-              placeholder="Search deals..."
-              className="w-full rounded border px-3 py-2 pr-8 text-sm"
+              type="number"
+              value={maxPrice}
+              onChange={(e) => { setMaxPrice(e.target.value); setPage(1); }}
+              placeholder="Any"
+              min={0}
+              step={0.01}
+              className={inputClass}
             />
-            {search ? (
-              <button
-                onClick={() => { setSearch(""); setPage(1); }}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                aria-label="Clear search"
+          </div>
+
+          <div>
+            <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+              City
+            </label>
+            <select
+              value={city}
+              onChange={(e) => { setCity(e.target.value); setPage(1); }}
+              className={selectClass}
+            >
+              <option value="">All cities</option>
+              {CITIES.map((option) => <option key={option} value={option}>{option}</option>)}
+            </select>
+          </div>
+
+          <div>
+            <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+              Cuisine
+            </label>
+            <select
+              value={cuisineType}
+              onChange={(e) => { setCuisineType(e.target.value); setPage(1); }}
+              className={selectClass}
+            >
+              <option value="">All cuisines</option>
+              {CUISINE_TYPES.map((option) => <option key={option} value={option}>{option}</option>)}
+            </select>
+          </div>
+
+          <div>
+            <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+              Type
+            </label>
+            <select
+              value={dealType}
+              onChange={(e) => { setDealType(e.target.value as DealTypeFilter); setPage(1); }}
+              className={selectClass}
+            >
+              <option value="">All types</option>
+              <option value="Lunch">Lunch</option>
+              <option value="Carryout">Carryout</option>
+              <option value="Delivery">Delivery</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 xl:col-span-2 xl:grid-cols-2">
+            <div>
+              <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Data
+              </label>
+              <select
+                value={source}
+                onChange={(e) => { setSource(e.target.value as SourceFilter); setPage(1); }}
+                className={selectClass}
               >
-                &times;
-              </button>
-            ) : null}
+                <option value="">All sources</option>
+                <option value="seed">Demo</option>
+                <option value="yelp">Real (Yelp)</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Sort
+              </label>
+              <select
+                value={sort}
+                onChange={(e) => { setSort(e.target.value as SortOption); setPage(1); }}
+                className={selectClass}
+              >
+                <option value="newest">Newest</option>
+                <option value="value">Best value</option>
+              </select>
+            </div>
           </div>
         </div>
 
-        <div className="w-28">
-          <label className="block text-xs font-medium text-slate-600 mb-1">Max price ($)</label>
-          <input
-            type="number"
-            value={maxPrice}
-            onChange={(e) => { setMaxPrice(e.target.value); setPage(1); }}
-            placeholder="Any"
-            min={0}
-            step={0.01}
-            className="w-full rounded border px-3 py-2 text-sm"
-          />
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Dietary
+          </span>
+          {DIETARY_OPTIONS.map((tag) => (
+            <button
+              key={tag}
+              onClick={() => toggleDietaryTag(tag)}
+              className={
+                dietaryTags.includes(tag)
+                  ? "rounded-full border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-semibold text-indigo-700"
+                  : "rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition hover:border-slate-300 hover:bg-slate-50"
+              }
+            >
+              {tag}
+            </button>
+          ))}
+          {hasActiveFilters ? (
+            <button
+              onClick={clearAllFilters}
+              className="rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100"
+            >
+              Clear all
+            </button>
+          ) : null}
         </div>
 
-        <div>
-          <label className="block text-xs font-medium text-slate-600 mb-1">City</label>
-          <select
-            value={city}
-            onChange={(e) => { setCity(e.target.value); setPage(1); }}
-            className="rounded border px-3 py-2 text-sm"
-          >
-            <option value="">All cities</option>
-            {CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
-          </select>
+        <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4">
+          <p className="text-sm text-slate-500">
+            {!loading && !error ? `${total} deal${total !== 1 ? "s" : ""} found` : "Filtering marketplace..."}
+          </p>
+          <div className="hidden text-sm text-slate-500 md:block">
+            Browse active offers by price, city, cuisine, and type.
+          </div>
         </div>
+      </SurfaceCard>
 
-        <div>
-          <label className="block text-xs font-medium text-slate-600 mb-1">Cuisine</label>
-          <select
-            value={cuisineType}
-            onChange={(e) => { setCuisineType(e.target.value); setPage(1); }}
-            className="rounded border px-3 py-2 text-sm"
-          >
-            <option value="">All cuisines</option>
-            {CUISINE_TYPES.map((c) => <option key={c} value={c}>{c}</option>)}
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-xs font-medium text-slate-600 mb-1">Type</label>
-          <select
-            value={dealType}
-            onChange={(e) => { setDealType(e.target.value as DealTypeFilter); setPage(1); }}
-            className="rounded border px-3 py-2 text-sm"
-          >
-            <option value="">All types</option>
-            <option value="Lunch">Lunch</option>
-            <option value="Carryout">Carryout</option>
-            <option value="Delivery">Delivery</option>
-            <option value="Other">Other</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-xs font-medium text-slate-600 mb-1">Data</label>
-          <select
-            value={source}
-            onChange={(e) => { setSource(e.target.value as SourceFilter); setPage(1); }}
-            className="rounded border px-3 py-2 text-sm"
-          >
-            <option value="">All sources</option>
-            <option value="seed">Demo</option>
-            <option value="yelp">Real (Yelp)</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-xs font-medium text-slate-600 mb-1">Sort</label>
-          <select
-            value={sort}
-            onChange={(e) => { setSort(e.target.value as SortOption); setPage(1); }}
-            className="rounded border px-3 py-2 text-sm"
-          >
-            <option value="newest">Newest</option>
-            <option value="value">Best value</option>
-          </select>
-        </div>
-      </div>
-
-      {/* Dietary tags multi-select */}
-      <div className="mt-3 flex flex-wrap items-center gap-2">
-        <span className="text-xs font-medium text-slate-600">Dietary:</span>
-        {DIETARY_OPTIONS.map((tag) => (
-          <button
-            key={tag}
-            onClick={() => toggleDietaryTag(tag)}
-            className={`rounded-full border px-3 py-0.5 text-xs font-medium transition-colors ${
-              dietaryTags.includes(tag)
-                ? "border-emerald-500 bg-emerald-500 text-white"
-                : "border-slate-200 bg-white text-slate-600 hover:border-emerald-400"
-            }`}
-          >
-            {tag}
-          </button>
-        ))}
-        {hasActiveFilters && (
-          <button
-            onClick={clearAllFilters}
-            className="ml-2 rounded-full border border-red-200 bg-red-50 px-3 py-0.5 text-xs font-medium text-red-600 hover:bg-red-100"
-          >
-            Clear all
-          </button>
-        )}
-      </div>
-
-      {/* Result count */}
-      {!loading && !error ? (
-        <p className="mt-3 text-xs text-slate-500">
-          {total} deal{total !== 1 ? "s" : ""} found
-          {debouncedSearch.trim() ? ` for "${debouncedSearch.trim()}"` : ""}
-        </p>
-      ) : null}
-
-      {/* Results */}
       {loading ? (
-        <p className="mt-6 text-slate-600">Loading deals...</p>
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {[...Array(6)].map((_, index) => (
+            <SurfaceCard key={index} className="overflow-hidden">
+              <div className="h-48 animate-pulse bg-slate-200" />
+              <div className="space-y-3 p-5">
+                <div className="h-5 w-2/3 animate-pulse rounded bg-slate-200" />
+                <div className="h-4 w-full animate-pulse rounded bg-slate-100" />
+                <div className="h-4 w-5/6 animate-pulse rounded bg-slate-100" />
+                <div className="h-10 w-full animate-pulse rounded-xl bg-slate-200" />
+              </div>
+            </SurfaceCard>
+          ))}
+        </div>
       ) : error ? (
-        <p className="mt-6 text-red-600">Error: {error}</p>
+        <SurfaceCard className="p-8 text-center">
+          <h2 className="text-xl font-semibold text-slate-900">Could not load deals</h2>
+          <p className="mt-2 text-sm leading-6 text-red-600">{error}</p>
+        </SurfaceCard>
       ) : deals.length === 0 ? (
-        <p className="mt-6 text-slate-600">No deals found. Try changing your filters.</p>
+        <SurfaceCard className="p-10 text-center">
+          <h2 className="text-xl font-semibold text-slate-900">No matching deals</h2>
+          <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600">
+            Try broadening your search or clearing some filters to see more published offers.
+          </p>
+        </SurfaceCard>
       ) : (
         <>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
             {deals.map((deal) => (
               <DealCard
                 key={deal._id}
@@ -287,6 +337,7 @@ export function DealsPage() {
                 discountType={deal.discountType}
                 value={deal.value}
                 price={deal.price}
+                imageUrl={deal.imageUrl}
                 cuisineType={deal.cuisineType}
                 dietaryTags={deal.dietaryTags}
                 yelpRating={deal.yelpRating}
@@ -297,11 +348,11 @@ export function DealsPage() {
           </div>
 
           {totalPages > 1 ? (
-            <div className="mt-6 flex items-center justify-center gap-2">
+            <div className="flex items-center justify-center gap-3">
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page <= 1}
-                className="rounded border px-3 py-1 text-sm disabled:opacity-40"
+                className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Previous
               </button>
@@ -309,7 +360,7 @@ export function DealsPage() {
               <button
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page >= totalPages}
-                className="rounded border px-3 py-1 text-sm disabled:opacity-40"
+                className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Next
               </button>

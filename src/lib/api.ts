@@ -9,7 +9,7 @@ function authHeaders() {
   return headers;
 }
 
-// Dispatch a global event so AuthContext can clear state on 401.
+// Dispatch a global event so Redux auth can clear state on 401.
 function handleUnauthorized(status: number) {
   if (status === 401) {
     window.dispatchEvent(new Event("auth:expired"));
