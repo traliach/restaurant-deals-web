@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200">
+  <rect width="400" height="200" fill="#fdf2f8"/>
+  <!-- cake base -->
+  <rect x="120" y="120" width="160" height="50" rx="6" fill="#f9a8d4"/>
+  <!-- cake middle layer -->
+  <rect x="130" y="82" width="140" height="42" rx="6" fill="#f472b6"/>
+  <!-- cake top layer -->
+  <rect x="145" y="52" width="110" height="34" rx="6" fill="#ec4899"/>
+  <!-- frosting drips -->
+  <path d="M145,52 Q155,42 165,52 Q175,42 185,52 Q195,42 205,52 Q215,42 225,52 Q235,42 245,52 Q255,42 255,52" fill="none" stroke="white" stroke-width="6" stroke-linecap="round"/>
+  <!-- candle -->
+  <rect x="196" y="30" width="8" height="22" rx="3" fill="#fbbf24"/>
+  <ellipse cx="200" cy="28" rx="5" ry="7" fill="#f97316" opacity="0.9"/>
+  <!-- plate -->
+  <ellipse cx="200" cy="168" rx="100" ry="10" fill="#fbcfe8" opacity="0.6"/>
+</svg>

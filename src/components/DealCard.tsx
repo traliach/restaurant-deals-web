@@ -12,103 +12,108 @@ type DealCardProps = {
   discountType?: string;
   value?: number;
   price?: number;
+  imageUrl?: string;
   cuisineType?: string;
   dietaryTags?: string[];
   yelpRating?: number;
   endAt?: string;
-  /** When provided, clicking the card calls this instead of navigating to /deals/:id */
+  /** When provided, clicking the card opens the quick-view drawer instead of navigating. */
   onOpenDrawer?: () => void;
   children?: ReactNode;
 };
 
-function formatDiscount(discountType?: string, value?: number) {
-  if (!discountType || value == null) return null;
-  if (discountType === "percent") return `${value}% off`;
-  if (discountType === "amount") return `$${value} off`;
-  if (discountType === "bogo") return "BOGO";
-  return discountType;
-}
-
-function formatCountdown(endAt?: string): string | null {
-  if (!endAt) return null;
-  const diff = new Date(endAt).getTime() - Date.now();
-  if (diff <= 0) return "Expired";
-  const days = Math.floor(diff / 86400000);
-  const hours = Math.floor((diff % 86400000) / 3600000);
-  if (days > 0) return `${days}d ${hours}h left`;
-  const mins = Math.floor((diff % 3600000) / 60000);
-  return hours > 0 ? `${hours}h ${mins}m left` : `${mins}m left`;
+function getFallbackImage(title?: string, cuisineType?: string) {
+  const text = `${title ?? ""} ${cuisineType ?? ""}`.toLowerCase();
+  if (text.includes("pizza"))   return "/images/placeholders/pizza.jpg";
+  if (text.includes("burger"))  return "/images/placeholders/burger.jpg";
+  if (text.includes("sushi"))   return "/images/placeholders/sushi.jpg";
+  if (text.includes("dessert") || text.includes("cake")) return "/images/placeholders/dessert.jpg";
+  if (text.includes("salad") || text.includes("vegan"))  return "/images/placeholders/salad.jpg";
+  return "/images/placeholders/default.svg";
 }
 
 export function DealCard({
   id, title, restaurantName, restaurantCity, description,
-  dealType, discountType, value, price,
-  cuisineType, dietaryTags, yelpRating, endAt, onOpenDrawer, children,
+  dealType, price, imageUrl,
+  cuisineType, dietaryTags, yelpRating, onOpenDrawer, children,
+  // accepted but not rendered — kept for API compatibility with DealsPage/FavoritesPage
+  discountType: _dt, value: _val, endAt: _end,
 }: DealCardProps) {
-  const discount = formatDiscount(discountType, value);
-  const countdown = formatCountdown(endAt);
-  const isExpired = countdown === "Expired";
 
   return (
     <Link
       to={`/deals/${id}`}
       onClick={(e) => { if (onOpenDrawer) { e.preventDefault(); onOpenDrawer(); } }}
-      className="flex flex-col rounded-lg border bg-white p-4 hover:shadow-md transition-shadow hover:border-indigo-200"
+      className="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl"
     >
-      <div className="flex items-start justify-between gap-2">
-        <span className="font-semibold text-indigo-700">{title}</span>
-        <div className="flex shrink-0 flex-col items-end gap-1">
-          {dealType ? (
-            <span className="rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">{dealType}</span>
-          ) : null}
-          {cuisineType ? (
-            <span className="rounded bg-violet-50 px-2 py-0.5 text-xs font-medium text-violet-600">{cuisineType}</span>
-          ) : null}
-        </div>
+      {/* Thumbnail */}
+      <div className="relative overflow-hidden">
+        <img
+          src={imageUrl || getFallbackImage(title, cuisineType)}
+          alt={title}
+          className="h-48 w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+          loading="lazy"
+          onError={(e) => { e.currentTarget.src = "/images/placeholders/default.svg"; }}
+        />
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/40 to-transparent" />
+        {dealType ? (
+          <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-slate-800 shadow-sm backdrop-blur">
+            {dealType}
+          </span>
+        ) : null}
       </div>
 
-      <p className="mt-1 text-sm text-slate-600">
-        {restaurantName}
-        {restaurantCity && <span className="text-slate-400"> · {restaurantCity}</span>}
-      </p>
+      {/* Body */}
+      <div className="flex flex-1 flex-col p-5">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h3 className="line-clamp-1 text-lg font-semibold text-slate-900">{title}</h3>
+            <p className="mt-1 text-sm text-slate-500">
+              {restaurantName}
+              {restaurantCity && <span className="text-slate-400"> · {restaurantCity}</span>}
+            </p>
+          </div>
+          {yelpRating != null ? (
+            <div className="shrink-0 rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">
+              ⭐ {yelpRating.toFixed(1)}
+            </div>
+          ) : null}
+        </div>
 
-      <p className="mt-2 text-sm text-slate-700 line-clamp-2">{description}</p>
+        <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-600">{description}</p>
 
-      {dietaryTags && dietaryTags.length > 0 ? (
-        <div className="mt-2 flex flex-wrap gap-1">
-          {dietaryTags.map((tag) => (
-            <span key={tag} className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700 border border-emerald-200">
+        <div className="mt-4 flex flex-wrap gap-2">
+          {cuisineType ? (
+            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+              {cuisineType}
+            </span>
+          ) : null}
+          {dietaryTags?.slice(0, 2).map((tag) => (
+            <span key={tag} className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
               {tag}
             </span>
           ))}
         </div>
-      ) : null}
 
-      <div className="mt-auto pt-3 flex items-center justify-between gap-2">
-        <div className="flex flex-col gap-0.5">
-          {discount ? (
-            <span className="text-sm font-semibold text-emerald-700">{discount}</span>
-          ) : <span />}
-          {yelpRating != null ? (
-            <span className="text-xs text-amber-600">★ {yelpRating.toFixed(1)}</span>
-          ) : null}
-        </div>
-        <div className="flex flex-col items-end gap-0.5">
-          {price != null && price > 0 ? (
-            <span className="text-sm font-bold text-slate-800">${price.toFixed(2)}</span>
-          ) : null}
-          {countdown ? (
-            <span className={`text-xs font-medium ${isExpired ? "text-red-500" : "text-orange-500"}`}>
-              {countdown}
+        <div className="mt-auto pt-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-wide text-slate-400">Deal price</p>
+              <p className="text-xl font-bold text-slate-900">
+                {typeof price === "number" && price > 0 ? `$${price.toFixed(2)}` : "View offer"}
+              </p>
+            </div>
+            <span className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition group-hover:bg-indigo-600">
+              View Deal
             </span>
-          ) : null}
+          </div>
         </div>
-      </div>
 
-      {/* Action buttons — stop propagation so they don't trigger the card link */}
-      {children && (
-        <div onClick={(e) => e.preventDefault()}>{children}</div>
-      )}
+        {/* Action slot — used by FavoritesPage for Add to Cart / Remove buttons */}
+        {children && (
+          <div onClick={(e) => e.preventDefault()}>{children}</div>
+        )}
+      </div>
     </Link>
   );
 }

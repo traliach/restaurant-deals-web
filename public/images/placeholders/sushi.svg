@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200">
+  <rect width="400" height="200" fill="#f0fdfa"/>
+  <!-- plate -->
+  <ellipse cx="200" cy="150" rx="130" ry="18" fill="#ccfbf1" opacity="0.8"/>
+  <!-- sushi rolls -->
+  <g transform="translate(120,95)">
+    <ellipse cx="0" cy="0" rx="28" ry="28" fill="#1c1917"/>
+    <ellipse cx="0" cy="0" rx="20" ry="20" fill="#f1f5f9"/>
+    <ellipse cx="0" cy="0" rx="12" ry="12" fill="#f43f5e"/>
+  </g>
+  <g transform="translate(200,90)">
+    <ellipse cx="0" cy="0" rx="28" ry="28" fill="#1c1917"/>
+    <ellipse cx="0" cy="0" rx="20" ry="20" fill="#f1f5f9"/>
+    <ellipse cx="0" cy="0" rx="12" ry="12" fill="#f97316"/>
+  </g>
+  <g transform="translate(280,95)">
+    <ellipse cx="0" cy="0" rx="28" ry="28" fill="#1c1917"/>
+    <ellipse cx="0" cy="0" rx="20" ry="20" fill="#f1f5f9"/>
+    <ellipse cx="0" cy="0" rx="12" ry="12" fill="#0d9488"/>
+  </g>
+  <!-- wasabi blob -->
+  <ellipse cx="200" cy="155" rx="18" ry="10" fill="#4ade80" opacity="0.7"/>
+</svg>
