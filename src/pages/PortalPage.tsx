@@ -189,12 +189,13 @@ export function PortalPage() {
   }
 
   async function deleteDeal(id: string) {
+    if (!window.confirm("Delete this deal? This cannot be undone.")) return;
     setError("");
     setSuccess("");
     try {
       await apiDelete(`/api/owner/deals/${id}`);
       setItems((prev) => prev.filter((deal) => deal._id !== id));
-      setSuccess("Draft deleted.");
+      setSuccess("Deal deleted.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Delete failed");
     }
@@ -697,14 +698,12 @@ export function PortalPage() {
                           >
                             Edit
                           </button>
-                          {deal.status === "DRAFT" ? (
-                            <button
-                              onClick={() => deleteDeal(deal._id)}
-                              className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100"
-                            >
-                              Delete
-                            </button>
-                          ) : null}
+                          <button
+                            onClick={() => deleteDeal(deal._id)}
+                            className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100"
+                          >
+                            Delete
+                          </button>
                           <button
                             onClick={() => submitDeal(deal._id)}
                             className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-600"
