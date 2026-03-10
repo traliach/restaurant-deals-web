@@ -30,7 +30,7 @@ React frontend for a moderated restaurant deals marketplace. Customers browse an
 - React 19 + TypeScript
 - Vite
 - Redux Toolkit (auth + cart)
-- React Router v6
+- React Router v7
 - Tailwind CSS v4
 - Stripe.js + React Stripe Elements
 - Fetch API (no Axios)
@@ -41,7 +41,7 @@ React frontend for a moderated restaurant deals marketplace. Customers browse an
 git clone https://github.com/traliach/restaurant-deals-web
 cd restaurant-deals-web
 npm install
-cp .env.example .env   # set your API URL and Stripe key
+cp .env.example .env   # env links share via slack
 npm run dev
 ```
 
