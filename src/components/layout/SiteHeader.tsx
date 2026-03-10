@@ -127,7 +127,7 @@ export function SiteHeader() {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
               >
                 Logout
               </button>
@@ -205,7 +205,7 @@ export function SiteHeader() {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="mt-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                className="mt-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
               >
                 Logout
               </button>

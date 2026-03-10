@@ -84,6 +84,9 @@ export function PortalPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
+  const [editDealType, setEditDealType] = useState<DealType>("Lunch");
+  const [editDiscountType, setEditDiscountType] = useState<DiscountType>("percent");
+  const [editValue, setEditValue] = useState(20);
 
   useEffect(() => {
     async function loadOwnerDeals() {
@@ -139,6 +142,9 @@ export function PortalPage() {
     setEditingId(deal._id);
     setEditTitle(deal.title);
     setEditDescription(deal.description ?? "");
+    setEditDealType(deal.dealType ?? "Lunch");
+    setEditDiscountType(deal.discountType ?? "percent");
+    setEditValue(deal.value ?? 20);
   }
 
   function cancelEdit() {
@@ -154,6 +160,9 @@ export function PortalPage() {
       const updated = await apiPut<OwnerDeal>(`/api/owner/deals/${editingId}`, {
         title: editTitle.trim(),
         description: editDescription.trim(),
+        dealType: editDealType,
+        discountType: editDiscountType,
+        value: Number(editValue),
       });
       setItems((prev) => prev.map((d) => (d._id === editingId ? { ...d, ...updated } : d)));
       setEditingId(null);
@@ -585,6 +594,49 @@ export function PortalPage() {
                           className={textareaClass}
                           required
                         />
+                      </div>
+                      <div className="grid gap-4 sm:grid-cols-3">
+                        <div>
+                          <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                            Deal Type
+                          </label>
+                          <select
+                            value={editDealType}
+                            onChange={(e) => setEditDealType(e.target.value as DealType)}
+                            className={selectClass}
+                          >
+                            {DEAL_TYPES.map((t) => (
+                              <option key={t} value={t}>{t}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                            Discount Type
+                          </label>
+                          <select
+                            value={editDiscountType}
+                            onChange={(e) => setEditDiscountType(e.target.value as DiscountType)}
+                            className={selectClass}
+                          >
+                            {DISCOUNT_TYPES.map((t) => (
+                              <option key={t} value={t}>{t}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                            Value
+                          </label>
+                          <input
+                            type="number"
+                            min={0}
+                            value={editValue}
+                            onChange={(e) => setEditValue(Number(e.target.value))}
+                            className={inputClass}
+                            required
+                          />
+                        </div>
                       </div>
                       <div className="flex gap-2">
                         <button
