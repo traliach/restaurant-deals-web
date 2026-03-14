@@ -1,6 +1,9 @@
 # Restaurant Deals Web
 
-React frontend for a moderated restaurant deals marketplace. Customers browse and purchase deals, owners manage deal submissions, and admins approve or reject deals through a review queue.
+React + TypeScript frontend for a full-stack MERN restaurant deals platform.
+
+This application is the frontend for a marketplace-style project where restaurant owners publish promotions, customers discover deals, and admins manage workflow and access. It is part of my public full-stack portfolio and reflects my work across frontend engineering, API integration, authentication flows, and role-based user experience.
+
 
 ## Features
 
