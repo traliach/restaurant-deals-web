@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { addItem, decrementItem, removeItem } from "../store/cartSlice";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { SEOHead } from "../components/SEOHead";
 
 export function CartPage() {
   const dispatch = useAppDispatch();
@@ -25,6 +26,7 @@ export function CartPage() {
 
   return (
     <section className="mx-auto max-w-2xl">
+      <SEOHead title="Your Cart" description="Review your selected restaurant deals before checkout." noIndex />
       <h1 className="mb-6 text-2xl font-semibold">Your Cart</h1>
 
       <ul className="space-y-3">

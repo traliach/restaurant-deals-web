@@ -4,6 +4,7 @@ import { addItem } from "../store/cartSlice";
 import { useAppDispatch } from "../store/hooks";
 import { apiDelete, apiGet } from "../lib/api";
 import { DealCard } from "../components/DealCard";
+import { SEOHead } from "../components/SEOHead";
 
 type FavoriteDeal = {
   _id: string;
@@ -73,6 +74,7 @@ export function FavoritesPage() {
 
   return (
     <section>
+      <SEOHead title="My Favorites" description="Your saved restaurant deals on DealBite." noIndex />
       <h1 className="text-2xl font-semibold">Favorites</h1>
       <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((item) => (

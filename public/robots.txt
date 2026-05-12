@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Allow: /deals
+Allow: /deals/
+
+Disallow: /admin
+Disallow: /portal
+Disallow: /explore
+Disallow: /cart
+Disallow: /checkout
+Disallow: /orders
+Disallow: /favorites
+
+Sitemap: https://dealbite.netlify.app/sitemap.xml

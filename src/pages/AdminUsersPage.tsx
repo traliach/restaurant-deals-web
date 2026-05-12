@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { apiDelete, apiGet } from "../lib/api";
+import { SEOHead } from "../components/SEOHead";
 
 type User = {
   _id: string;
@@ -74,6 +75,7 @@ export function AdminUsersPage() {
 
   return (
     <div>
+      <SEOHead title="User Management" description="DealBite admin user management." noIndex />
       <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
         <div>
           <h2 className="text-xl font-semibold text-slate-800">User Management</h2>

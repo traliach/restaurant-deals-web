@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { login } from "../store/authSlice";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { apiPost } from "../lib/api";
+import { SEOHead } from "../components/SEOHead";
 
 type RegisterData = {
   token: string;
@@ -55,6 +56,7 @@ export function RegisterPage() {
 
   return (
     <section className="max-w-md">
+      <SEOHead title="Create Account" description="Register for a DealBite account to save favorites and place orders." noIndex />
       <h1 className="text-2xl font-semibold">Create Account</h1>
       <form onSubmit={onSubmit} className="mt-4 space-y-3">
         <input

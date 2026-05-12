@@ -4,7 +4,40 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>restaurant-deals-web</title>
+
+    <!-- Default title & description (overridden per-page by react-helmet-async) -->
+    <title>DealBite — Discover Local Restaurant Deals</title>
+    <meta name="description" content="DealBite is the marketplace for verified restaurant promotions. Browse deals, compare offers, and order from the best local restaurants near you." />
+    <meta name="application-name" content="DealBite" />
+    <link rel="canonical" href="https://dealbite.netlify.app/" />
+
+    <!-- Open Graph -->
+    <meta property="og:site_name" content="DealBite" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://dealbite.netlify.app/" />
+    <meta property="og:title" content="DealBite — Discover Local Restaurant Deals" />
+    <meta property="og:description" content="Browse verified restaurant promotions, compare offers, and order from the best local restaurants near you." />
+    <meta property="og:image" content="https://dealbite.netlify.app/images/hero-food.webp" />
+    <meta property="og:image:alt" content="DealBite restaurant deals marketplace" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="DealBite — Discover Local Restaurant Deals" />
+    <meta name="twitter:description" content="Browse verified restaurant promotions, compare offers, and order from the best local restaurants near you." />
+    <meta name="twitter:image" content="https://dealbite.netlify.app/images/hero-food.webp" />
+
+    <!-- JSON-LD: Organization (default, overridden per-page) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "DealBite",
+      "url": "https://dealbite.netlify.app",
+      "description": "DealBite is a marketplace for verified restaurant deals and promotions.",
+      "logo": "https://dealbite.netlify.app/vite.svg"
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>

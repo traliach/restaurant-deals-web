@@ -5,6 +5,7 @@ import { apiGet } from "../lib/api";
 import { DealCard } from "../components/DealCard";
 import { PageHeader } from "../components/ui/PageHeader";
 import { SurfaceCard } from "../components/ui/SurfaceCard";
+import { SEOHead } from "../components/SEOHead";
 
 type Deal = {
   _id: string;
@@ -133,8 +134,23 @@ export function DealsPage() {
 
   useEffect(() => { loadDeals(); }, [loadDeals]);
 
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://dealbite.netlify.app/" },
+      { "@type": "ListItem", "position": 2, "name": "Deals", "item": "https://dealbite.netlify.app/deals" },
+    ],
+  };
+
   return (
     <section className="space-y-8">
+      <SEOHead
+        title="Deals Explorer"
+        description="Discover approved restaurant promotions near you. Filter by city, cuisine, price, and dietary needs. Browse active deals on DealBite."
+        canonical="/deals"
+        jsonLd={breadcrumbJsonLd}
+      />
       <PageHeader
         eyebrow="Marketplace"
         title="Deals Explorer"

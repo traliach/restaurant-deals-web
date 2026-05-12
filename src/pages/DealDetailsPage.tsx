@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { addItem } from "../store/cartSlice";
 import { useAppDispatch } from "../store/hooks";
 import { apiGet, apiPost } from "../lib/api";
+import { SEOHead } from "../components/SEOHead";
 
 type Deal = {
   _id: string;
@@ -99,8 +100,45 @@ export function DealDetailsPage() {
 
   const discountLabel = formatDiscount(deal.discountType, deal.value);
 
+  const dealJsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://dealbite.netlify.app/" },
+        { "@type": "ListItem", "position": 2, "name": "Deals", "item": "https://dealbite.netlify.app/deals" },
+        { "@type": "ListItem", "position": 3, "name": deal.title, "item": `https://dealbite.netlify.app/deals/${deal._id}` },
+      ],
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Offer",
+      "name": deal.title,
+      "description": deal.description,
+      "url": `https://dealbite.netlify.app/deals/${deal._id}`,
+      ...(deal.price != null && deal.price > 0 ? { "price": deal.price, "priceCurrency": "USD" } : {}),
+      "availability": countdown === "Expired" ? "https://schema.org/Discontinued" : "https://schema.org/InStock",
+      "seller": {
+        "@type": "Restaurant",
+        "name": deal.restaurantName,
+        ...(deal.restaurantCity ? { "address": { "@type": "PostalAddress", "addressLocality": deal.restaurantCity } } : {}),
+      },
+      ...(deal.imageUrl ? { "image": deal.imageUrl } : {}),
+    },
+  ];
+
+  const seoDescription = `${deal.restaurantName} — ${deal.description.slice(0, 140)}`;
+
   return (
     <section className="mx-auto max-w-2xl">
+      <SEOHead
+        title={deal.title}
+        description={seoDescription}
+        canonical={`/deals/${deal._id}`}
+        image={deal.imageUrl}
+        imageAlt={`${deal.title} at ${deal.restaurantName}`}
+        jsonLd={dealJsonLd}
+      />
       <button
         onClick={() => navigate(-1)}
         className="mb-4 flex items-center gap-1 text-sm text-slate-500 hover:text-indigo-600"

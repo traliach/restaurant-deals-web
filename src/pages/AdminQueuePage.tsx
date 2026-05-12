@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { apiGet } from "../lib/api";
+import { SEOHead } from "../components/SEOHead";
 import { AdminDealDrawer, type AdminDeal } from "../components/AdminDealDrawer";
 
 type SortKey = "title" | "restaurantName" | "status" | "createdAt";
@@ -63,6 +64,7 @@ export function AdminQueuePage() {
 
   return (
     <div>
+      <SEOHead title="Deal Review Queue" description="DealBite admin deal review queue." noIndex />
       <div className="flex items-center justify-between mb-4">
         <div>
           <h2 className="text-xl font-semibold text-slate-800">Deal Management</h2>

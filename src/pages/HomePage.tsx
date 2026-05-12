@@ -5,6 +5,20 @@ import { useAppSelector } from "../store/hooks";
 import { apiGet } from "../lib/api";
 import { DealCard } from "../components/DealCard";
 import { DealDetailsDrawer, type DrawerDeal } from "../components/DealDetailsDrawer";
+import { SEOHead } from "../components/SEOHead";
+
+const HOME_JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "DealBite",
+  "url": "https://dealbite.netlify.app",
+  "description": "DealBite is a marketplace for verified local restaurant deals and promotions.",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://dealbite.netlify.app/deals?search={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+};
 
 type Deal = {
   _id: string;
@@ -123,6 +137,12 @@ export function HomePage() {
 
   return (
     <section className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-100">
+      <SEOHead
+        title="DealBite — Discover Local Restaurant Deals"
+        description="Browse verified restaurant promotions, compare offers, and order from the best local restaurants near you."
+        canonical="/"
+        jsonLd={HOME_JSON_LD}
+      />
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
 
         {/* Hero */}

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { apiGet } from "../lib/api";
+import { SEOHead } from "../components/SEOHead";
 
 type OrderItem = {
   dealId: string;
@@ -45,6 +46,7 @@ export function OrdersPage() {
 
   return (
     <section>
+      <SEOHead title="My Orders" description="Your order history on DealBite." noIndex />
       <h1 className="mb-6 text-2xl font-semibold">Your Orders</h1>
       <ul className="space-y-4">
         {orders.map((order) => (

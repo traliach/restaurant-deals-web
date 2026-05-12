@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { apiGet } from "../lib/api";
+import { SEOHead } from "../components/SEOHead";
 
 type BotLog = {
   _id: string;
@@ -27,6 +28,7 @@ export function AdminBotPage() {
 
   return (
     <div>
+      <SEOHead title="Bot Audit" description="DealBite admin bot audit log." noIndex />
       <h2 className="text-xl font-semibold text-slate-800">Bot Audit</h2>
       <p className="mt-1 text-sm text-slate-500">{logs.length} interactions logged</p>
 

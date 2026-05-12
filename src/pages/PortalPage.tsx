@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 import { apiDelete, apiGet, apiPost, apiPut } from "../lib/api";
 import { PageHeader } from "../components/ui/PageHeader";
 import { SurfaceCard } from "../components/ui/SurfaceCard";
+import { SEOHead } from "../components/SEOHead";
 
 type DealType = "Lunch" | "Carryout" | "Delivery" | "Other";
 type DiscountType = "percent" | "amount" | "bogo" | "other";
@@ -240,6 +241,7 @@ export function PortalPage() {
 
   return (
     <section className="space-y-8">
+      <SEOHead title="Owner Portal" description="Manage your restaurant deals on DealBite." noIndex />
       <PageHeader
         eyebrow="Owner workspace"
         title="Owner Portal"

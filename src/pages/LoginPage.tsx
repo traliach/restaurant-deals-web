@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { login } from "../store/authSlice";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { apiPost } from "../lib/api";
+import { SEOHead } from "../components/SEOHead";
 
 type LoginData = {
   token: string;
@@ -40,6 +41,7 @@ export function LoginPage() {
 
   return (
     <section className="max-w-md">
+      <SEOHead title="Login" description="Sign in to your DealBite account." noIndex />
       <h1 className="text-2xl font-semibold">Login</h1>
       <form onSubmit={onSubmit} className="mt-4 space-y-3">
         <input

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { apiGet } from "../lib/api";
+import { SEOHead } from "../components/SEOHead";
 
 type TopOwner = {
   email: string;
@@ -58,6 +59,7 @@ export function AdminDashboardPage() {
 
   return (
     <div>
+      <SEOHead title="Admin Dashboard" description="DealBite admin dashboard." noIndex />
       <h2 className="text-xl font-semibold text-slate-800">Dashboard</h2>
       <p className="mt-1 text-sm text-slate-500">Overview of your platform metrics.</p>
 

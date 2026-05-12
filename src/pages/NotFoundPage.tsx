@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
+import { SEOHead } from "../components/SEOHead";
 
 export function NotFoundPage() {
   return (
     <section className="text-center py-16">
+      <SEOHead title="Page Not Found" description="This page does not exist." noIndex />
       <h1 className="text-5xl font-bold text-slate-300">404</h1>
       <p className="mt-4 text-lg font-semibold text-slate-700">Page not found</p>
       <p className="mt-2 text-sm text-slate-600">

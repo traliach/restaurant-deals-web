@@ -6,6 +6,7 @@ import { clearCart } from "../store/cartSlice";
 import { env } from "../config/env";
 import { apiPost } from "../lib/api";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { SEOHead } from "../components/SEOHead";
 
 const stripePromise = loadStripe(env.stripePublishableKey);
 
@@ -116,6 +117,7 @@ function CheckoutForm() {
 export function CheckoutPage() {
   return (
     <section className="mx-auto max-w-lg">
+      <SEOHead title="Checkout" description="Complete your DealBite order securely." noIndex />
       <h1 className="mb-6 text-2xl font-semibold">Checkout</h1>
       <Elements stripe={stripePromise}>
         <CheckoutForm />
