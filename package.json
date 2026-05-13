@@ -30,5 +30,6 @@
     "tailwindcss": "^4.2.1",
     "typescript": "^5.9.3"
   },
-  "overrides": {}
+  "overrides": {},
+  "engines": { "npm": ">=10" }
 }
